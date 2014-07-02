@@ -1,3 +1,10 @@
+= Read first
+
+This plugin was taken from http://www.redmine.org/plugins/wk-time and originally developed by Dhanasingh Krishnapandian.
+
+In order to fit individual needs the plugin was revamped.
+For the full description of changes see https://github.com/synapplix/redmine_wktime/wiki
+
 = wktime
 This Plugin provides the capability to submit Time & Expense within redmine. The user must be a 
 member of a project with permission to log time.  If the user has permission to manage other team
@@ -5,7 +12,7 @@ members, he can manage their Time & Expense as well.
 
 This plugin uses the existing Time Entry model for Time sheets and has its own model called 
 Wk Expense Entry for Expense Sheets.  New Time & Expense sheets can be entered using the link 
-‘New sheet’, new issues can be added to the Sheets using the ‘Add Row’ link.  Users without 
+ï¿½New sheetï¿½, new issues can be added to the Sheets using the ï¿½Add Rowï¿½ link.  Users without 
 Edit permissions cannot edit/delete time & expense entries.  
 The time & expense sheets can be exported into pdf and csv format.
 
@@ -83,7 +90,7 @@ Release Notes for 1.6
 		User with View Spent time permission can only see the list page.
 	Bugs:
 		wrap Settings object within Rails.configuration.to_prepare inside init.rb
-		Show the message “no users in the selected project" in new time/expense sheet 
+		Show the message ï¿½no users in the selected project" in new time/expense sheet 
 		Expense report link does not shows up by default
 		Allow 0 for time/expense entry
 
