@@ -1,52 +1,66 @@
 <%= javascript_include_tag 'index', :plugin => "redmine_wktime" %>
 <script type="text/javascript"> 
-	prevTab = 'tab-<%= "#{controller_name}" %>';
-	grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
-	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
+	 prevTab = 'tab-<%= "#{controller_name}" %>';
+	 grpUrl="<%= "#{url_for(:controller => controller_name, :action => 'getMembersbyGroup')}" %>";
+	 userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
 </script>
 <% if !@currentUser_loggable_projects.blank?  %>
-<div class="contextual">
-<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
-</div>
+	<div class="contextual">
+	<%= link_to l(:"button_new_#{controller_name}"), url_for(:controller => controller_name, :action => 'new'), :class => 'icon icon-time-add' %>
+	</div>
 <% end %>
 <p />
+
 <%= form_tag({:controller => controller_name, :action => 'index'}, :method => :get, :id => 'query_form') do %>
 
 <%=h hidden_field_tag('tab', "#{controller_name}") %>
 
 <% if !@manage_view_spenttime_projects.blank? %>
-<table>
+	<table>
 
-<tr>
-<th><%= radio_button_tag 'projgrp_type', '1', !@use_group,
- :onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
-<%=l(:field_project)%></th>
-<td class="project" align="left"><%=h select_tag('project_id', 
-	options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
-	:selected => @selected_project.id),:disabled => @use_group,
-	:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
-</tr>
+	<tr>	
+	<th><%= radio_button_tag 'projgrp_type', '1', !@use_group,
+ 	:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").attr("disabled", true);$("#project_id").removeAttr("disabled");' %>
+	<%=l(:field_project)%></th>
+	<td class="project" align="left"><%=h select_tag('project_id', 
+		options_for_select(options_for_wktime_project(@manage_view_spenttime_projects),
+		:selected => @selected_project.id),:disabled => @use_group,
+		:onchange => "projChanged(this, #{User.current.id}, true);") %></td>
+	</tr>
 <% if !@groups.blank? %>
-<tr>
-<th><%= radio_button_tag 'projgrp_type', '2', @use_group, 
-:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
-<%=l(:label_group_plural)%></th>
-<td>
-	<%=h select_tag('group_id',
-	options_for_select( @groups.collect {|p| [p.name, p.id ]},
-	:selected => (params[:group_id].nil? ? 0 : params[:group_id])),:disabled => !@use_group,
-	:onchange => "grpChanged(this, #{User.current.id}, true);") %>
-</td>
-</tr>
+	<tr>
+	<th><%= radio_button_tag 'projgrp_type', '2', @use_group, 
+	:onclick => 'progrpChanged(this, "#{User.current.id}", true);$("#group_id").removeAttr("disabled");$("#project_id").attr("disabled", true);' %>
+	<%=l(:label_group_plural)%></th>
+	<td>
+		<%=h select_tag('group_id',
+		options_for_select( @groups.collect {|p| [p.name, p.id ]},
+		:selected => (params[:group_id].nil? ? 0 : params[:group_id])),:disabled => !@use_group,
+		:onchange => "grpChanged(this, #{User.current.id}, true);") %>
+	</td>
+	</tr>
 <% end %>
+
+
 <tr>
 <th><%=l(:label_member)%></th>
 <td>
-<%# show the blank value if more than one user is in the list %>
-<%=h select_tag('user_id',
-	options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
-		:selected =>  @user.nil? ? (params[:user_id].nil? ? User.current.id : params[:user_id]) : @user.id),
-	:onchange => 'this.form.submit();') %></td>
+<% #show the blank value if more than one user is in the list 
+#If clause: Is the current user allowed to see the other users ? (means: admin) If not show only the current user.
+%>
+
+<%if User.current.admin?%>  	
+	<%=h select_tag('user_id',
+	
+		options_for_select( [["All Users","0"]] + (@members.blank? ? [] : @members),
+			:selected =>  @user.nil? ? (params[:user_id].nil? ? User.current.id : params[:user_id]) : @user.id),
+	
+		:onchange => 'this.form.submit();') %>
+<%else%>
+		<%=h User.current.login %>
+		<%=h hidden_field_tag('user_id', User.current.id) %>
+<%end%>
+</td>
 </tr>
 <tr>
 <th><%=l(:field_status)%></th>
@@ -78,3 +92,7 @@
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
 <% end %>
+
+<!-- Link for leaving index --> 
+<%= link_to 'Verlassen', url_for(:controller => controller.controller_name, :action => 'leaveIndex')%> 
+

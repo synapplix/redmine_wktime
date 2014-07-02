@@ -16,10 +16,14 @@ var issueField = 'Issue';
 var submissionack="";
 var minHourAlertMsg="";
 var decSeparator = ".";
+
+
+
 $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
+
 
 	$( "#comment-dlg" ).dialog({
 		autoOpen: false,
@@ -31,7 +35,8 @@ $(document).ready(function() {
 					var comments = $('input[name="comments'+comment_row+'[]"]');
 					var custFldToolTip;
 					if(!commentInRow){
-						comments[comment_col-1].value = e_comments.val();	
+						comments[comment_col-1].value = e_comments.val();
+						// $(comments[comment_col-1]).change();	
 					}					
 					updateCustomField();					
 					custFldToolTip = getCustFldToolTip();
@@ -43,18 +48,19 @@ $(document).ready(function() {
 					{
 						edits[comment_col-1].title = custFldToolTip;
 					}
-
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
-					window.onbeforeunload = null;
+					//window.onbeforeunload = null;
 			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
 			}
 		}
+	
 	});	
 	
+
 	$( "#notes-dlg" ).dialog({
 		autoOpen: false,
 		resizable: false,
@@ -71,17 +77,18 @@ $(document).ready(function() {
 			}
 		}
 	});	
-
+	
 	
 });
 
+
 function showComment(row, col) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
-	var width = 300;
-	var height = 350;
+	var width = 550;
+	var height = 400;
 	var posX = 0;
 	var posY = 0;
-	var i = row - 1;
+	var i = row -1;
 	var currImage = images[col-1];
 	var projDropdowns = $('select[name="time_entry[][project_id]"]');
 	var issDropdowns = $('select[name="time_entry[][issue_id]"]');
@@ -117,8 +124,8 @@ function showComment(row, col) {
 
 function showNotes() {
 	var rejectBtn = $( 'input[name="wktime_reject"]' );
-	var width = 300;
-	var height = 200;
+	var width = 200;
+	var height =200;
 	var posX = 0;
 	var posY = 0;
 	posX = $(rejectBtn).offset().left - $(document).scrollLeft() - width + $(rejectBtn).outerWidth();
@@ -801,24 +808,34 @@ function updateRemainingHr(day)
 	var rowCount = issueTable.rows.length;
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
+	
+	var pauseRow = issueTable.rows[3];	
+	
 	var totTime,cell,rmTimeCell,dayTt,remainingTm = 0;
 	
 	totTime = getTotalTime(day);
 	
 	//cell = totalRow.cells[hStartIndex + day];
-	var day_total = document.getElementById('day_total_'+day);
+	var day_total = document.getElementById('day_total_'+ day);
 	dayTt = Number(day_total.innerHTML);	
-	rmTimeCell = rmTimeRow.cells[hStartIndex + day];
-	if(totTime >  0)
+	rmTimeCell = rmTimeRow.cells[hStartIndex + day-3]; // -3 because the activity box was removed
+	
+	
+	//if(totTime >  0)
 	{
 		remainingTm = totTime - dayTt;
 	}		
 	rmTimeCell.innerHTML = remainingTm.toFixed(2);
+	
 }
 
 function getTotalTime(day)
 {
-	var minDiff = getMinDiff(day);			
+	var minDiff = getMinDiff(day);
+	
+	 
+	
+				
 	//totTime = Math.round((minDiff/60)*100)/100;	
 	totTime = minDiff/60;
 	return totTime;
@@ -831,6 +848,9 @@ function getMinDiff(day)
 	var st_min,end_min,minDiff;
 	st_min = getMinutes(day,'start_');
 	end_min = getMinutes(day,'end_');
+	//pausenFeature
+	pause_min = getMinutes(day, 'pause_');
+	//console.debug("Pause in Minutes: "+ pause_min);
 	
 	if(st_min > end_min)
 	{
@@ -843,7 +863,9 @@ function getMinDiff(day)
 			end_min += 1440;
 		}
 	}
-	minDiff = end_min - st_min;
+	// pausenFeature
+	minDiff = end_min - st_min - pause_min;
+	//console.debug("minDiff: "+ minDiff);
 	return minDiff;
 }
 
@@ -863,7 +885,7 @@ function updateTotalHr(day)
 	var issueTable = document.getElementById("issueTable");
 	var totTimeRow = issueTable.rows[3];
 	var tot_Hr = 0,tot_min = 0,totTime="";
-	var minDiff = getMinDiff(day);
+	//var minDiff = getMinDiff(day);
 	
 	/*if(minDiff > 0)
 	{	*/	
@@ -937,7 +959,7 @@ function validateMinhour(minHour,nonWorkingDay){
 				
 				if (dayTotal< Number(minHour)){
 					alert(minHourAlertMsg);
-					valid=false
+					valid=false;
 					break;
 				}
 			}
@@ -960,3 +982,5 @@ function issueAssignUser()
 	}
 	return issue_assign_user
 }
+
+

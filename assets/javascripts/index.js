@@ -2,6 +2,7 @@ var wktimeIndexUrl,wkexpIndexUrl;
 var no_user ="";
 var grpUrl="";
 var userUrl="";
+
 function projChanged(projDropdown, userid, needBlankOption){
 	
 	var id = projDropdown.options[projDropdown.selectedIndex].value;
@@ -19,6 +20,8 @@ function projChanged(projDropdown, userid, needBlankOption){
 	});
 	
 }
+
+
 
 function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 {

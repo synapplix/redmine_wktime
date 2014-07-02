@@ -40,6 +40,7 @@ if params[:enter_issue_id].blank?
 			#issues << [ i.id.to_s + ' - ' + i.subject, i.id ] 			
 			issues << [ i.to_s , i.id ] 
 			curr_issue_found = true if !entry.nil? && i.id == entry.issue_id
+			
 		end
 	end
 	#check if the issue, which was previously reported time, is still visible
@@ -60,13 +61,15 @@ if params[:enter_issue_id].blank?
 			
 	%>
 	
-	<td class="issue" align="left">
+	<td class="issue" align="right">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
 			options_for_select(issues, :selected =>  entry.nil? ? 0 : entry.issue_id, :required => true),
-			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px" ) %>
+			:style=> "width:#{Setting.plugin_redmine_wktime['wktime_issue_dd_width']}px") 
+			%>
 		<% else %>
 			<%= entry.issue.subject if !entry.nil? && !entry.issue.nil? %>
+			<%= elsePath%>
 		<% end %>
 	</td>
 <% else %>
@@ -74,9 +77,10 @@ if params[:enter_issue_id].blank?
 		<%=h hidden_field_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
 		entry.nil? ? '' : entry.project_id.to_s ) %>
 	</td>
-<td class="issue" align="left">
+<td class="issue" align="left" >
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][issue_id]' : 'time_entry[][issue_id]', 
-		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});") %>
+		entry.nil? ? '' : entry.issue_id, :onkeypress => "issueAutocomplete(this,#{@row.to_s()});") 
+		%>
 </td>
 <% end %>
 
@@ -96,7 +100,7 @@ if params[:enter_issue_id].blank?
 		activities.unshift( [ entry.activity_id, entry.activity_id ] )if !entry.nil? && activity.blank?
 	end
 %>
-<td class="activity" align="left">
+<td class="hidden" align="left"><!-- class="activity" ==> hidden-->
 <% if @editable %>
 	<%=h select_tag(isTemplate ? '__template__time_entry[][activity_id]' : 'time_entry[][activity_id]', 
 	activities.blank? ? nil : options_for_select(activities, :selected => entry.nil? ? 0 : entry.activity_id),
@@ -108,7 +112,7 @@ if params[:enter_issue_id].blank?
 
 <%if !Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? &&
 	Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 1 %>
-	<td class="comments" align="left">
+	<td class="hidden" align="left"><!-- class="comments" ==> hidden-->
 	<% if @editable %>
 		<%=h text_field_tag(isTemplate ? '__template__time_entry[][comments]' : 'time_entry[][comments]', 
 			 entry.nil? ? '' : entry.comments)%>
@@ -118,11 +122,11 @@ if params[:enter_issue_id].blank?
 	</td>
 <% else %>
 <% # leave a blank td %>
-<td class="comments" align="left"></td>
+<td class="hidden" align="left"></td><!-- ==> hidden-->
 <% end %>
 
 <!-- dropdown for currency -->
-<td align="left">
+<td align="left" class="hidden"><!-- added class="hidden" -->
 	<% if !(controller.getUnitDDHTML).blank? %>
 		<%= render :partial => controller.getUnitDDHTML , :locals => {:entry => entry} %>
 	<% end %>

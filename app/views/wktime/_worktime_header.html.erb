@@ -1,19 +1,87 @@
-
 <tr>
-	<td ></td>
-	<td ></td>
-	<td ></td>
-	<td ></td>
-	<td ></td>
-	<td ></td>
+        <td ></td>
+        <td ></td>
+        <td ></td>
+        <!-- deleted 3 times <td ></td>--> 
 
-	<td align = "right"><%= l(:"label_#{str}") %></td>
-	<% for i in 0..6%>
-		<% if (isEditable) %>
-			<td align = "center"><%= text_field_tag "#{str}_#{(i+1)}" ,'0:00',:size => 7, :onchange => "validateHr(this,#{(i+1)});" %></td>
-		<% else %>
-			<td align = "center"><%= value %></td>
-		<% end %>
-	<% end %>
-	<td ></td>
+		<td align = "left"  style="font-weight:bold"><%= l(:"label_#{str}") %></td>
+		
+		<% entry = StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first    %>    <!-- Find the right entry -->
+        
+        <% if (!entry.nil?) %>                                                                           <!-- Entry exists -->
+					
+        <%  arrayStart = [entry.start_1,entry.start_2,entry.start_3,entry.start_4,entry.start_5,entry.start_6,entry.start_7] %>
+        <%  arrayEnd   = [entry.end_1,  entry.end_2,  entry.end_3,  entry.end_4,  entry.end_5,  entry.end_6,  entry.end_7] %>
+		<%  arrayPause = [entry.pause_1,  entry.pause_2,  entry.pause_3,  entry.pause_4,  entry.pause_5,  entry.pause_6,  entry.pause_7]%>
+                <% for i in 0..6%>
+						
+                        <% if (isEditable) %>
+								
+								<!-- set start_1..7 --> 
+                                <% if (str == 'start') %>                                                                                                                                                            
+                                        <% time =  arrayStart[i] %>
+                                        
+                                                <!-- Is the time input valid? THEN convert to time (scheme: hh:mm ) otherwise set to 00:00 -->
+                                                <% if(!arrayStart[i].nil?) %>                   
+                                                        <% time = time.to_formatted_s(:time) %>
+                                                <% else %>
+                                                        <% time = '00:00' %>
+                                                <% end %>
+					                    <td align = "center"  ><%= text_field_tag "#{str}_#{(i+1)}" , time  ,:size => 7 ,:tabindex => (1+2*i) , :onchange => "validateHr(this,#{(i+1)});"%> </td>
+					                    
+								<!-- set end_1..7 -->  
+                                <% elsif (str =='end') %>                                                                                                                                                                                                                      
+                                     	<% time = arrayEnd[i] %>
+                                                
+                                                <!-- Is the time input valid? THEN convert to time (scheme: hh:mm ) otherwise set to 00:00 -->
+                                                <% if(!arrayEnd[i].nil?) %>                   
+                                                        <% time = time.to_formatted_s(:time) %>
+                                                <% else %>
+                                                        <% time = '00:00' %>
+                                                <% end %>
+										<td align = "center" > <%= text_field_tag "#{str}_#{(i+1)}" ,time ,:size => 7 , :tabindex => (2+2*i) ,:onchange => "validateHr(this,#{(i+1)});"  %> </td>
+								<!-- Pause-->		
+								<% else %>
+										<% time =  arrayPause[i] %>
+										
+										<!-- Is the time input valid? THEN convert to time (scheme: hh:mm ) otherwise set to 00:00 -->
+												<% if(!arrayPause[i].nil?) %>                   
+                                                        <% time = time.to_formatted_s(:time) %>
+                                                <% else %>
+                                                        <% time = '00:00' %>
+                                                <% end %>										
+										<td align = "center" > <%= text_field_tag "#{str}_#{(i+1)}" ,time ,:size => 7,:onchange => "validateHr(this,#{(i+1)});"  %> </td>
+                                <% end %>
+
+                        <% else %>
+                        
+	                                                
+                                <td align = "center"><%= '00:00'  %></td>         
+                                                                                                                                                                    
+                        <% end %>
+
+               <% end %>
+
+          <% else %> <!-- if Entry does not exist: -->
+
+                <% for j in 0..6%>
+						
+                        <% if (isEditable) %> 
+                        	<!-- if clause to set the right tabindex -->
+	                        <% if (str == 'start') %> 
+	                           <td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00'  ,:size => 7, :tabindex => (1+2*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>
+	                        <% else %>
+                                <td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00' ,:size => 7, :tabindex => (2+2*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>
+                            <% end%>    
+                        <% else %>
+                                 <td align = "center"><%= '00:00' %></td>
+                        <% end %>
+
+                <% end %>
+
+        <% end %>
+	
+        <td ></td>
+
 </tr>
+

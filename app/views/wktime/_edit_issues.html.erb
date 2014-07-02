@@ -1,3 +1,5 @@
+<%= javascript_include_tag 'alert_unsaved_changes', :plugin => "redmine_wktime" %>
+
 <% 
 @wday_index = 1 
 @trOpen = false
@@ -9,16 +11,18 @@ entry = nil
 currencySym = ""
 %>
 
-<div class="wk-contextual">
+<p> </p>
 <% if @editable %>
 	<%= link_to l(:button_add_row), "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' %>
 <% end %>
-</div>
+
 
 <table id="issueTable" class="list time-entries">
 <thead>
 <tr>
+	
 	<%= render :partial => 'issue_header'%>
+	
 </tr>
 </thead>
 <tbody>
@@ -63,6 +67,7 @@ currencySym = ""
 	<% # if there are no entries, put an empty row%>
 	<% currencySym = controller.getUnit(nil) %>
 	<%= render :partial => 'edit_issues2', :locals => {:entry => nil, :isTemplate => false}%>
+	
 <% end %>
 	
 	<% # pad any incomplete days %>
@@ -73,24 +78,26 @@ currencySym = ""
 	<tr>
 	<td class="project"></td>
 	<td class="issue"></td>
-	<td class="activity"></td>	
 	<td class="comments"></td>
-	<td ></td> <!-- for currency -->
-	<td></td>
-	<td></td>
+	<!-- 2 times <td></td> deleted -->
+	
+	<td></td> 
+	 <!-- for currency -->
+	
 	<% thours.each_with_index do |th,i| %>		
 		<td align="center"><%= currencySym %>&nbsp;<span id=<%= "day_total_#{i+1}" %>><%= ("%.2f" % th) %></span></td>
 	<% end %>
 	<td>	
-	<b>	<%= l(:label_total) %>: <%= currencySym %>&nbsp;<span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
+	<b>	<%= l(:label_workingHours) %>: <%= currencySym %>&nbsp;<span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
 	<%=h hidden_field_tag('total', ("%.2f" % @total_hours) ) %>
 	<%=h hidden_field_tag('unit', currencySym) %>
+	 <!-- thours <=> </=>Hours per day within an array become global to be accessable in worktime_header.html.erb to be able to be preloaded -->
 	</td>
 	</tr>	
 	
 	<% if controller.showWorktimeHeader %>
 		<!-- Remaining Hours -->
-		<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0'}%>
+		<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0', :hourPerDayValues => thours}%>
 	<% end %>
 </tbody>
 </table>
@@ -120,12 +127,11 @@ currencySym = ""
 		<% end %>
 	<% end %>
 <% end %>
+<div class="splitcontentleft">
 
-<div class="splitcontentright">
-<div class="contextual">
 <% if @editable %>
 	<%= link_to l(:button_add_row), "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add' %>
 <% end %>
-</div>
+
 </div>
 <%= context_menu time_entries_context_menu_path %>

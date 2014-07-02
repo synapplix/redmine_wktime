@@ -9,4 +9,5 @@
     <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
 <% end %>
 
-  <% #= link_to 'PDF', url_for(:controller => 'wktime', :action => 'export', :startday => @startday, :user_id => params[:user_id]) + '&format=pdf' %>
+<!-- Link -> Index -->
+<%= link_to 'Auswertung', url_for(:controller => controller.controller_name, :action => 'fromEditToIndex')%> 

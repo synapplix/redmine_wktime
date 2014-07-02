@@ -1,8 +1,10 @@
  <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
 
-
+  
   <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
- 
+  
+  <%= javascript_include_tag 'alert_unsaved_changes', :plugin => "redmine_wktime" %>
+ 	
 	<script type="text/javascript"> 
 		decSeparator = '<%=l(:general_csv_decimal_separator) %>';
 		issueField = '<%= l(:field_issue) %>';
@@ -25,17 +27,20 @@
 		<% end %>
 		
 	</script>
+	
+	
 
 	<div id="comment-dlg" title="<%= l(:label_attribute_plural) %>">
+		
 	<!-- modified class .ui-widget-header to change the header color -->
-		<span id="_edit_comm_proj_">project</span>, 
-		<span id="_edit_comm_iss_">issue</span>,
-		<span id="_edit_comm_act_">activity)</span>
+		<!--<span id="_edit_comm_proj_">project</span>,
+		<span id="_edit_comm_iss_">issue</span> 
+		<!--<span id="_edit_comm_act_">activity</span<!-- edit: Deleting header of the popup, since it is not needed-->
 		<fieldset>
 		<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
 			<p> <label><%= l(:field_comments) %></label>
-			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="25" rows="2"> </textarea> </p>
+			<textarea name="_edit_comments_" id="_edit_comments_" value="" cols="45" rows="5"> </textarea> </p>
 		<% end %>
 
 		
@@ -43,7 +48,7 @@
 			Setting.plugin_redmine_wktime['wktime_use_detail_popup'].to_i == 1 %>
 					
 			<% unless @new_custom_field_values.blank? %>
-				<p><%= l(:label_custom_field_plural) %></p>
+				<!--<p><%= l(:label_custom_field_plural) %></p>   This label is usless-->
 				<% 
 					cf_ids = ""
 					@new_custom_field_values.each do |custom_value|
@@ -60,7 +65,7 @@
 								cf_ids += ",_custom_field_values_#{custom_field.id}"
 							end
 				%>
-							<p><%= custom_field_tag_with_label '', custom_value %></p>
+							<%= custom_field_tag_with_label '', custom_value %> <!-- deleted <p> ... </p> in order to display the "Begin field" correctly -->
 						<% 	end %>
 
 				<% 	end %>
@@ -126,14 +131,17 @@
 				<% 	end %>
 				<!-- script type="text/javascript"> wkcf_ids = '<%=wkcf_ids%>';</script -->
 			<% end %>
-	<% # Martin Dube Contribution: show previous and next time entry %>
+
 	<tr>	
 	<td colspan="2">
-		 <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
-                  :title => l(:label_wk_prev_week_tip)) %>
-      |
-      <%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
-                  :title => l(:label_wk_next_week_tip)) %> 
+	   		
+             <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
+                   :title => l(:label_wk_prev_week_tip), :id => 'previous') %>    
+            
+      		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
+                  :title => l(:label_wk_next_week_tip)) %>
+                  	
+                  
 	</td>
 	</tr>
 </table>

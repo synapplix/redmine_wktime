@@ -13,8 +13,29 @@ accept_api_auth :index, :edit, :update, :destroy
 
 helper :custom_fields
 
+  #redirect 
+  def fromEditToIndex
+    $stayAtIndex= 1
+    redirect_to({ action: 'index'  }) and return
+  end
+
+  #redirect 
+  def leaveIndex
+    $stayAtIndex= 0
+    redirect_to({ action: 'new'  }) and return
+  end
+  
+  
+  def submitAndRedirect
+
+    update
+    redirect_to :action => 'edit', :user_id => @user.id,         :startday => @startday-7,  :project_id => params[:project_id]
+    #redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
+  end
+
   def index
-    retrieve_date_range	
+  
+  retrieve_date_range	
 	@from = getStartDay(@from)
 	@to = getEndDay(@to)
 	# Paginate results
@@ -78,16 +99,51 @@ helper :custom_fields
 	end
 	
 	findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)	
-    respond_to do |format|
-      format.html {        
-        render :layout => !request.xhr?
-      }
-	  format.api
-    end
+  
+  #managing redirect with $stayAtIndex variable, 0 => no redirect to new, 1 => redirect to new  
+  if $stayAtIndex.nil? 
+    $stayAtIndex = 0
+  end
+  
+  if ($stayAtIndex == 0)
+      redirect_to({ action: 'new'  }) #, alert: "Something serious happened"
   end
 
+
+ 
+ #OldCode
+ #redirect_to  :action => 'edit' , :project_id => 3, :user_id => 4, :startday => @from, :prev_template => 1 
+ #render :action => 'new' and return 
+ ##x = Project.find_by_id(3)
+ 
+##render :action => 'edit', :logtime_projects => x, :user_id => ids, :startday => @from and return
+ #render :action => 'edit', :project_id => '3', :user_id => ids, :startday => @from, :prev_template => 1 and return
+ 
+ #letzte zu new
+ #redirect_to({ action: 'new'  }, :flash => { :user_id => ids }, alert: "Something serious happened")
+   #redirect  
+  #redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
+   
+  #aus new
+  #set_user_projects
+  #@selected_project = getSelectedProject(@manage_log_time_projects)
+  # get the startday for current week
+  #@startday = getStartDay(Date.today)
+     
+     #redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
+      #respond_to do |format|
+      # format.html {        
+        # render :layout => !request.xhr?
+       # }
+  	   # format.api
+     # end
+     #End OldCode 
+  
+  end
+  
   def edit
-	@prev_template = false
+  puts request.inspect
+  @prev_template = false
 	@new_custom_field_values = getNewCustomField
 	setup
 	findWkTE(@startday)
@@ -134,7 +190,8 @@ helper :custom_fields
 	cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
 	useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
-						
+	##vor der Transaction
+					
 	@wktime.transaction do
 		begin				
 			if errorMsg.blank? && (!params[:wktime_save].blank? ||
@@ -163,6 +220,53 @@ helper :custom_fields
 							@wktime.status = :a
 						end
 					end
+
+				#Added Code 3.3. 2014 
+
+						#Find the entry with the current user_id and startday
+						#If there is no such entry create a new one 
+						StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first_or_create do |record|
+						record.user_id = params[:user_id]
+						record.startday = params[:startday]
+						end
+
+						#Select this entry                      
+						n = StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first
+
+						#Set start_1...start_7
+						n.start_1= params[:start_1]
+						n.start_2= params[:start_2]
+						n.start_3= params[:start_3]
+						n.start_4= params[:start_4]
+						n.start_5= params[:start_5]
+						n.start_6= params[:start_6]
+						n.start_7= params[:start_7]
+
+						#analogue the values of end_1...end_7
+						n.end_1= params[:end_1]
+						n.end_2= params[:end_2]
+						n.end_3= params[:end_3]
+						n.end_4= params[:end_4]
+						n.end_5= params[:end_5]
+						n.end_6= params[:end_6]
+						n.end_7= params[:end_7]
+
+
+						#analogue the values of pause_1...pause_7
+						n.pause_1= params[:pause_1]
+						n.pause_2= params[:pause_2]
+						n.pause_3= params[:pause_3]
+						n.pause_4= params[:pause_4]
+						n.pause_5= params[:pause_5]
+						n.pause_6= params[:pause_6]
+						n.pause_7= params[:pause_7]
+
+						#Save the entry
+						n.save
+
+						#End added Code 3.3.2014
+			
+					
 				end
 				setTotal(@wktime,total)
 				#if (errorMsg.blank? && total > 0.0)
@@ -217,7 +321,8 @@ helper :custom_fields
 			if errorMsg.nil?
 				flash[:notice] = respMsg
 				#redirect_back_or_default :action => 'index'
-				redirect_to :action => 'index' , :tab => params[:tab]
+				#redirect_to :action => 'edit' , :tab => params[:tab]
+				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
 			else
 				flash[:error] = respMsg
 				if !params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1					
@@ -232,6 +337,7 @@ helper :custom_fields
 			if errorMsg.blank?
 				render :text => respMsg, :layout => nil
 			else			
+   #redirect_to :ac
 				@error_messages = respMsg.split('\n')	
 				render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 			end
@@ -283,6 +389,10 @@ helper :custom_fields
 		@selected_project = getSelectedProject(@manage_log_time_projects)
 		# get the startday for current week
 		@startday = getStartDay(Date.today)
+		
+		#RedirectManagement
+		$stayAtIndex = 0
+		
 		render :action => 'new'
 	end
 		
@@ -836,6 +946,7 @@ private
   def check_permission
     ret = false;
 	set_user_projects
+	
 	if !@manage_log_time_projects.blank? && @manage_log_time_projects.size > 0
 		#for manager
 	   if !@logtime_projects.blank? && @logtime_projects.size > 0
@@ -1053,7 +1164,7 @@ private
 	end
 
 	def set_loggable_projects
-		if api_request? && params[:user_id].blank?
+	 	if api_request? && params[:user_id].blank?
 			teName = getTEName()
 			u_id = params[:"wk_#{teName}"][:user][:id]
 		else
@@ -1062,7 +1173,7 @@ private
 		if !u_id.blank?	&& u_id.to_i != 0
 			@user ||= User.find(u_id)	
 			@logtime_projects ||= Project.find(:all, :order => 'name', 
-				:conditions => Project.allowed_to_condition(@user, :log_time))		
+				:conditions => Project.allowed_to_condition(@user, :log_time))
 			@logtime_projects = setTEProjects(@logtime_projects)			
 		end
 	end
@@ -1276,6 +1387,11 @@ private
 			return false
 		end
 	end
+	
+	
+
+
+	
 	
 	def formPaginationCondition
 		rangeStr = ""

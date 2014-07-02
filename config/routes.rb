@@ -8,6 +8,10 @@
 
   get 'wktime/getMembersbyGroup', :to => 'wktime#getMembersbyGroup'
   
+  get 'wktime/fromEditToIndex' , :to => 'wktime#fromEditToIndex'
+  
+  get 'wktime/leaveIndex' , :to => 'wktime#leaveIndex'
+    
   get 'wktime/deleterow', :to => 'wktime#deleterow'
 
   get 'wktime/export', :to => 'wktime#export'
@@ -17,13 +21,13 @@
   get 'wktime/new', :to => 'wktime#new'
 			  
   post 'wktime/update', :to => 'wktime#update'
-			  
+
   delete 'wktime/destroy', :to => 'wktime#destroy'
   
   get 'wktime/getStatus', :to => 'wktime#getStatus' 
   
   #For Weekly expenses
-  
+
   get 'wkexpense/index', :to => 'wkexpense#index'
   
   get 'wkexpense/new', :to => 'wkexpense#new'
