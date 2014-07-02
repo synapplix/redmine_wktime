@@ -13,19 +13,6 @@ accept_api_auth :index, :edit, :update, :destroy
 
 helper :custom_fields
 
-  #redirect 
-  def fromEditToIndex
-    $stayAtIndex= 1
-    redirect_to({ action: 'index'  }) and return
-  end
-
-  #redirect 
-  def leaveIndex
-    $stayAtIndex= 0
-    redirect_to({ action: 'new'  }) and return
-  end
-  
-  
   def submitAndRedirect
 
     update
@@ -98,19 +85,11 @@ helper :custom_fields
 		end
 	end
 	
-	findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)	
-  
-  #managing redirect with $stayAtIndex variable, 0 => no redirect to new, 1 => redirect to new  
-  if $stayAtIndex.nil? 
-    $stayAtIndex = 0
-  end
-  
-  if ($stayAtIndex == 0)
-      redirect_to({ action: 'new'  }) #, alert: "Something serious happened"
-  end
+	findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
+	
+  #forwarding to new 
+  redirect_to({ action: 'new'  })
 
-
- 
  #OldCode
  #redirect_to  :action => 'edit' , :project_id => 3, :user_id => 4, :startday => @from, :prev_template => 1 
  #render :action => 'new' and return 
@@ -389,10 +368,6 @@ helper :custom_fields
 		@selected_project = getSelectedProject(@manage_log_time_projects)
 		# get the startday for current week
 		@startday = getStartDay(Date.today)
-		
-		#RedirectManagement
-		$stayAtIndex = 0
-		
 		render :action => 'new'
 	end
 		

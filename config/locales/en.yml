@@ -51,6 +51,8 @@ en:
   label_remaining_hours: Remaining Hours
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"  
   
+  label_wk_evaluation: Evaluation
+  
   label_wk_first_day_of_week: First day of week
   label_wk_prev_week_tip: Previous Week
   label_wk_next_week_tip: Next Week

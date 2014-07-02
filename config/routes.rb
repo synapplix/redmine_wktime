@@ -8,10 +8,6 @@
 
   get 'wktime/getMembersbyGroup', :to => 'wktime#getMembersbyGroup'
   
-  get 'wktime/fromEditToIndex' , :to => 'wktime#fromEditToIndex'
-  
-  get 'wktime/leaveIndex' , :to => 'wktime#leaveIndex'
-    
   get 'wktime/deleterow', :to => 'wktime#deleterow'
 
   get 'wktime/export', :to => 'wktime#export'
