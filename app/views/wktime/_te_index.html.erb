@@ -92,7 +92,3 @@
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:issue_id => @issue, :format => 'atom', :key => User.current.rss_key}, :title => l(:label_spent_time)) %>
 <% end %>
-
-<!-- Link for leaving index --> 
-<%= link_to 'Verlassen', url_for(:controller => controller.controller_name, :action => 'leaveIndex')%> 
-

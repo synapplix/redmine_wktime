@@ -52,6 +52,8 @@ de:
   label_remaining_hours: Restliche Stunden
   label_workingHours: Arbeitsstunden
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"
+  
+  label_wk_evaluation: Auswertung
 
   label_wk_first_day_of_week: Erster Tag der Woche
   label_wk_prev_week_tip: Vorherige Woche
