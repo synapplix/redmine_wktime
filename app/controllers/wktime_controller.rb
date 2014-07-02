@@ -1229,9 +1229,10 @@ private
 		@wktimes = Wktime.find(:all, :conditions => cond)
 	end
 	
+	#Entries are now sorted depending on their creation time
 	def findEntriesByCond(cond)
 		TimeEntry.find(:all, :conditions => cond,
-			:order => 'project_id, issue_id, activity_id, spent_on')
+			:order => 'created_on, project_id, issue_id, activity_id, spent_on')
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
