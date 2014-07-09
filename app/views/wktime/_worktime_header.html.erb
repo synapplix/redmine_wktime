@@ -27,7 +27,7 @@
                                                 <% else %>
                                                         <% time = '00:00' %>
                                                 <% end %>
-					                    <td align = "center"  ><%= text_field_tag "#{str}_#{(i+1)}" , time  ,:size => 7 ,:tabindex => (1+2*i) , :onchange => "validateHr(this,#{(i+1)});"%> </td>
+					                    <td align = "center"  ><%= text_field_tag "#{str}_#{(i+1)}" , time  ,:size => 7 ,:tabindex => (1+3*i) , :onchange => "validateHr(this,#{(i+1)});"%> </td>
 					                    
 								<!-- set end_1..7 -->  
                                 <% elsif (str =='end') %>                                                                                                                                                                                                                      
@@ -39,7 +39,7 @@
                                                 <% else %>
                                                         <% time = '00:00' %>
                                                 <% end %>
-										<td align = "center" > <%= text_field_tag "#{str}_#{(i+1)}" ,time ,:size => 7 , :tabindex => (2+2*i) ,:onchange => "validateHr(this,#{(i+1)});"  %> </td>
+										<td align = "center" > <%= text_field_tag "#{str}_#{(i+1)}" ,time ,:size => 7 , :tabindex => (2+3*i) ,:onchange => "validateHr(this,#{(i+1)});"  %> </td>
 								<!-- Pause-->		
 								<% else %>
 										<% time =  arrayPause[i] %>
@@ -50,7 +50,7 @@
                                                 <% else %>
                                                         <% time = '00:00' %>
                                                 <% end %>										
-										<td align = "center" > <%= text_field_tag "#{str}_#{(i+1)}" ,time ,:size => 7,:onchange => "validateHr(this,#{(i+1)});"  %> </td>
+										<td align = "center" > <%= text_field_tag "#{str}_#{(i+1)}" ,time ,:size => 7, :tabindex => (3+3*i), :onchange => "validateHr(this,#{(i+1)});"  %> </td>
                                 <% end %>
 
                         <% else %>
@@ -69,10 +69,15 @@
                         <% if (isEditable) %> 
                         	<!-- if clause to set the right tabindex -->
 	                        <% if (str == 'start') %> 
-	                           <td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00'  ,:size => 7, :tabindex => (1+2*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>
-	                        <% else %>
-                                <td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00' ,:size => 7, :tabindex => (2+2*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>
-                            <% end%>    
+	                           	<td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00'  ,:size => 7, :tabindex => (1+3*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>
+	                        
+	                        <% elsif (str == 'end') %>
+                                <td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00' ,:size => 7, :tabindex => (2+3*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>
+                            
+                            <%else %> <!-- pause -->
+                            	<td align = "center"><%= text_field_tag "#{str}_#{(j+1)}" , '00:00' ,:size => 7, :tabindex => (3+3*j) , :onchange => "validateHr(this,#{(j+1)});" %> </td>	
+                            
+                            <% end%> 
                         <% else %>
                                  <td align = "center"><%= '00:00' %></td>
                         <% end %>
