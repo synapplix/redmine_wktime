@@ -21,7 +21,7 @@ helper :custom_fields
   end
 
   def index
-  
+   
   retrieve_date_range	
 	@from = getStartDay(@from)
 	@to = getEndDay(@to)
@@ -367,8 +367,8 @@ helper :custom_fields
 		set_user_projects
 		@selected_project = getSelectedProject(@manage_log_time_projects)
 		# get the startday for current week
-		@startday = getStartDay(Date.today)
-		render :action => 'new'
+  @startday = getStartDay(Date.today)    
+  render :action => 'new'
 	end
 		
 	def getIssueAssignToUsrCond
@@ -887,6 +887,13 @@ private
 		@wktimes.each do |wktime|
 			@wktimesHash[wktime.user_id.to_s + wktime.begin_date.to_s] = wktime
 		end
+	end
+	
+	def startTimeExists
+	 if (CustomField.where(name: 'Startzeitpunkt').nil?) 
+	   then $x = false
+	 else $x = true
+	 end
 	end
 	
 	def render_edit

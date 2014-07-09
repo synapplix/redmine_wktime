@@ -24,7 +24,7 @@ $(document).ready(function() {
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
 
-
+	
 	$( "#comment-dlg" ).dialog({
 		autoOpen: false,
 		resizable: false,
@@ -37,7 +37,7 @@ $(document).ready(function() {
 					if(!commentInRow){
 						comments[comment_col-1].value = e_comments.val();
 						// $(comments[comment_col-1]).change();	
-					}					
+					}
 					updateCustomField();					
 					custFldToolTip = getCustFldToolTip();
 					if(	!commentInRow && e_comments.val() != "")
@@ -51,7 +51,7 @@ $(document).ready(function() {
 					$( this ).dialog( "close" );				
 					//unregister this event since this is showing a 'don't leave' message
 					//loosk like this is not supported in Opera
-					//window.onbeforeunload = null;
+					//window.onbeforeunload = null;		
 			},
 			Cancel: function() {
 				$( this ).dialog( "close" );
@@ -66,7 +66,7 @@ $(document).ready(function() {
 		resizable: false,
 		modal: true,
 		buttons: {
-			"Ok": function() {
+			"Ok": function() {	
 				$( this ).dialog( "close" );
 				$( "#hidden_wk_reject" ).val('r');
 				$( "#wktime_notes" ).val(e_notes.val());
@@ -80,7 +80,8 @@ $(document).ready(function() {
 	
 	
 });
-
+//check for valid time format 
+//onchange="if (!this.value.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]/)) this.value = '';"
 
 function showComment(row, col) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
@@ -161,6 +162,12 @@ function showCustomField() {
 	}
 }
 
+function validateTime(timeToCheck){	
+		var timeToValidate = timeToCheck.value;
+		if (!timeToValidate.match(/^(([01]?[0-9]|2[0-3])):[0-5][0-9]$/)) {timeToCheck.value = ''; alert("Sie haben eine feherlhafte Startzeit angegeben. ("+ timeToValidate+")");}
+		$( "#comment-dlg" ).dialog( "open" );
+}
+
 function updateCustomField() {
 	if(cf_ids != ''){
 		var cust_fids = cf_ids.split(',');
@@ -185,7 +192,7 @@ function updateCustomField() {
 			}
 		}		
 	}
-	
+	if (custom_fields[comment_col-1] != '') validateTime(custom_fields[comment_col-1]);//check if entered time is valid
 }
 
 //forming custom fields for tooltip
