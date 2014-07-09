@@ -48,7 +48,9 @@ en:
   label_wk_issueid: Issue ID
   label_start: Start
   label_end: End
-  label_remaining_hours: Remaining Hours
+  label_remaining_hours: present hours
+  label_workingHours: logged hours
+  label_totalh: total
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"  
   
   label_wk_evaluation: Evaluation

@@ -160,7 +160,7 @@ function showCustomField() {
 //throwing error when input is not matched with the regular expression
 function validateTime(timeToCheck){	
 		var timeToValidate = timeToCheck.value;
-		if (!timeToValidate.match(/^(([01]?[0-9]|2[0-3])):[0-5][0-9]$/)){
+		if (!timeToValidate.match(/(^$)| (^(([01]?[0-9]|2[0-3])):[0-5][0-9]$)/)){
 			timeToCheck.value = ''; alert("Sie haben eine feherlhafte Startzeit angegeben. ("+ timeToValidate+")");
 		}
 		$( "#comment-dlg" ).dialog( "open" );
@@ -514,6 +514,8 @@ function addRow(){
 	{
 		submitButton.disabled = false;
 	}
+	//refreshing colours for logged time
+	for(i=0; i < 6; i++){updateRemainingHr(i);}
 }
 
 function deleteRow(row, deleteMsg){
@@ -567,6 +569,8 @@ function deleteRow(row, deleteMsg){
 	{
 		postDeleteRow('OK', row, days);
 	}
+	//refreshing colours for logged time
+	for(i=0; i < 6; i++){updateRemainingHr(i);}
 }
 
 function postDeleteRow(result, row, days, deleteMsg){
@@ -798,10 +802,10 @@ function updateDayTotal(day, dayTotal){
 
 function updateTotal(increment){
 	var totalSpan = document.getElementById("total_hours");
-	var totalHf = document.getElementById("total");
+	//var totalHf = document.getElementById("total");
 	var total = Number(totalSpan.innerHTML);
 	total += increment;
-	totalHf.value = total;
+	//totalHf.value = total;
 	totalSpan.innerHTML = total.toFixed(2);
 }
 
@@ -811,20 +815,33 @@ function updateRemainingHr(day)
 	var rowCount = issueTable.rows.length;
 	var totalRow = issueTable.rows[rowCount-2];
 	var rmTimeRow = issueTable.rows[rowCount-1];
-	
 	var pauseRow = issueTable.rows[3];	
 	
 	var totTime,cell,rmTimeCell,dayTt,remainingTm = 0;
 	
 	totTime = getTotalTime(day);
-	
-	//cell = totalRow.cells[hStartIndex + day];
 	var day_total = document.getElementById('day_total_'+ day);
-	dayTt = Number(day_total.innerHTML);	
+	dayTt = Number(day_total.innerHTML);
+	
+	
+	//Coloration
+		// The user worked longer then being at work => red
+		if (totTime < dayTt) {
+			day_total.parentElement.style.background = 'rgba(255, 0, 0, 0.2)';
+		
+		// The user worked exaclty as long as being at work (without the pause) => green
+		} else if (totTime == dayTt) {
+			day_total.parentElement.style.background = 'rgba(173, 255, 47, 0.2)';
+		// There are no enough hours logged yet => grey	
+		} else {
+			day_total.parentElement.style.background = 'rgba(0, 0, 1, 0.1)';
+		}
+	//cell = totalRow.cells[hStartIndex + day];
+
 	rmTimeCell = rmTimeRow.cells[hStartIndex + day-3]; // -3 because the activity box was removed
 	
 	{
-		remainingTm = totTime - dayTt;
+		remainingTm = totTime; //- dayTt;
 	}		
 	rmTimeCell.innerHTML = remainingTm.toFixed(2);	
 }
@@ -843,9 +860,7 @@ function getMinDiff(day)
 	var st_min,end_min,minDiff;
 	st_min = getMinutes(day,'start_');
 	end_min = getMinutes(day,'end_');
-	//pausenFeature
 	pause_min = getMinutes(day, 'pause_');
-	//console.debug("Pause in Minutes: "+ pause_min);
 	
 	if(st_min > end_min)
 	{
@@ -858,9 +873,7 @@ function getMinDiff(day)
 			end_min += 1440;
 		}
 	}
-	// pausenFeature
 	minDiff = end_min - st_min - pause_min;
-	//console.debug("minDiff: "+ minDiff);
 	return minDiff;
 }
 
@@ -868,7 +881,7 @@ function getMinDiff(day)
 function getMinutes(day,str)
 {
 	var fldVal,fldVal_min;
-	fldVal =  document.getElementById(str+day).value;		
+	fldVal = document.getElementById(String(str)+String(day)).value;
 	fldVal = fldVal.split(":");
 	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
 	return fldVal_min;
@@ -896,7 +909,7 @@ function updateTotalHr(day)
 		};
 		
 		totHrCell = totTimeRow.cells[hStartIndex + day];		
-		totHrCell.innerHTML = totTime;
+		totHrCell.innerHTML.span = totTime;
 	/*}*/
 }
 

@@ -20,9 +20,7 @@ currencySym = ""
 <table id="issueTable" class="list time-entries">
 <thead>
 <tr>
-	
 	<%= render :partial => 'issue_header'%>
-	
 </tr>
 </thead>
 <tbody>
@@ -36,6 +34,8 @@ currencySym = ""
 			issueWritten = false
 			rows.each.with_index do |entry, i|
 %>
+
+				
 				<% if !entry.blank? %>				
 					<% if !issueWritten %>
 						<% # this is a new Row %>
@@ -46,11 +46,12 @@ currencySym = ""
 						<%= render :partial => 'edit_issues2', :locals => {:entry => entry, :isTemplate => false}%>		
 						<% issueWritten = true %>
 					<% end %>
-					<% # fill the days till the current day %>
-					<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, 
-							:padAt => 'begin', :padTill => i+1}%>
-					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, 
-					:padAt => 'begin', :padTill => i+2}%>	
+					<% # fill the days till the current day 
+					%>
+					<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false, :padAt => 'begin', :padTill => i+1}%>
+							
+					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, :padAt => 'begin', :padTill => i+2}%>	
+					
 					<% thours[i] += entry.hours unless @prev_template%>
 					<% @total_hours += entry.hours unless @prev_template%>
 					<% currencySym = controller.getUnit(entry) %>
@@ -61,45 +62,87 @@ currencySym = ""
 		<% end %>
 	<% end %>
 
-<% else -%>
+<% else %>
 	<% # if there are no entries, put an empty row%>
 	<% currencySym = controller.getUnit(nil) %>
 	<%= render :partial => 'edit_issues2', :locals => {:entry => nil, :isTemplate => false}%>
-	
 <% end %>
 	
-	<% # pad any incomplete days %>
+	<% # pad any incomplete days 
+	%>
 	<%= render :partial => 'edit_hours', :locals => {:entry => nil, :isTemplate => false,
 		:padAt => 'end', :padTill => 8}%>
 
-	<!-- row for putting the total -->
+	
+	<!-- row for putting the total working hours -->
 	<tr>
-	<td class="project"></td>
-	<td class="issue"></td>
-	<td class="comments"></td>
-	<td></td> 
-	 <!-- for currency -->
+		<!-- Padding (because there is no need of values in the first columns)-->	
+		<td class="project"></td>
+		<td class="issue"></td> 
+		<td class="comments"></td>
+		
+		<!-- Working hours label -->
+		<td> <b> <%= l(:label_workingHours) %> </b> </td>	
+		
+		<!-- Working hours entries with the values of each column -->
+		<% thours.each_with_index do |th,i| %>		
+			<td align="center"><span id=<%="day_total_#{i+1}" %>><%=("%.2f" % th)%></span></td>
+		<% end %>
+		
+		<!-- Workinghours label + total sum -->
+		<td> <b> <%= l(:label_totalh)%> <%=currencySym%>&nbsp;<span id="total_hours"><%=("%.2f" % @total_hours)%></span> </b> </td>
+	</tr>
 	
-	<% thours.each_with_index do |th,i| %>		
-		<td align="center"><%= currencySym %>&nbsp;<span id=<%= "day_total_#{i+1}" %>><%= ("%.2f" % th) %></span></td>
-	<% end %>
-	<td>	
-	<b>	<%= l(:label_workingHours) %>: <%= currencySym %>&nbsp;<span id="total_hours"><%= ("%.2f" % @total_hours) %></span></b>
-	<%=h hidden_field_tag('total', ("%.2f" % @total_hours) ) %>
-	<%=h hidden_field_tag('unit', currencySym) %>
-	 <!-- thours <=> </=>Hours per day within an array become global to be accessable in worktime_header.html.erb to be able to be preloaded -->
-	</td>
-	</tr>	
 	
-	<% if controller.showWorktimeHeader %>
-		<!-- Remaining Hours -->
-		<%= render :partial => 'worktime_header', :locals => {:str => 'remaining_hours', :isEditable => false, :value => '0.0', :hourPerDayValues => thours}%>
-	<% end %>
+<% if controller.showWorktimeHeader %>
+		
+	<!-- row for putting the remaining hours -->
+	<tr>
+		<!-- Padding (because there is no need of values in the first columns)-->	
+		<td class="project"></td>
+		<td class="issue"></td>
+		<td class="comments"></td>
+			
+		<!-- Remaining hours label-->
+		<td><b>	<%= l(:label_remaining_hours) %> <span id="remaining hours"> </span> </b></td>
+			
+		<!-- Remaining hours entries with the values of each column-->
+		<% thours.each_with_index do |th,i| %>		
+			
+			<% entry = StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first %>    <!-- Find the right entry -->
+	 		<% if (!entry.nil?) %>  
+						
+				<!--Calculating the time (= end-start-pause)--> 
+				<% 	r_start = $arrayStartg[i].strftime('%s').to_f	%>
+				<% 	r_end 	= $arrayEndg[i].strftime('%s').to_f		%>
+				<% 	r_pause	= ($arrayPauseg[i].strftime('%H').to_i)*3600 + ($arrayPauseg[i].strftime('%M').to_i)*60	%>
+				<%	time  	= (r_end-r_start-r_pause).to_f	%>	
+				<%	time    = '%.2f' % (time / 3600)		%>
+	
+				<td align="center">	<span id= <%= "remaining_#{i+1}" %>> <%= time %>  </span></td>
+				
+			<% else %>		
+				<td align="center"> <span id= <%= "remaining_#{i+1}" %>> <%= '0.00'%> </span></td>
+			<% end %>
+			
+		<% end %>				
+	</tr>
+		
+<% end %>
+
+<!--Initalizing colors for logged time  -->
+<script type="text/javascript">  
+	for(i = 1; i <= 7; i++) {
+		updateRemainingHr(i);
+	}
+</script>
+
 </tbody>
 </table>
 
-<% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r' %>
-		<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save',  :disabled => !(@row > 0)%>
+
+<% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'%>
+		<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save', :disabled => !(@row > 0)%>
 	<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
 			Setting.plugin_redmine_wktime[:wktime_use_approval_system].to_i == 1 %>		
 			<%= submit_tag l(:button_submit),:id => 'wktime_submit', :name => 'wktime_submit', :onclick => "return validateMinhour('#{controller.minHour}','#{getNonWorkingDayColumn(params[:startday])}');" , :disabled => !(@row > 0)%>

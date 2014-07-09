@@ -13,6 +13,12 @@
         <%  arrayStart = [entry.start_1,entry.start_2,entry.start_3,entry.start_4,entry.start_5,entry.start_6,entry.start_7] %>
         <%  arrayEnd   = [entry.end_1,  entry.end_2,  entry.end_3,  entry.end_4,  entry.end_5,  entry.end_6,  entry.end_7] %>
 		<%  arrayPause = [entry.pause_1,  entry.pause_2,  entry.pause_3,  entry.pause_4,  entry.pause_5,  entry.pause_6,  entry.pause_7]%>
+        
+        <!--allowing global use of the arrays-->       
+        <% $arrayStartg = arrayStart %>
+		<% $arrayEndg = arrayEnd %>
+		<% $arrayPauseg = arrayPause %>
+               
                 <% for i in 0..6%>
 						
                         <% if (isEditable) %>
@@ -85,8 +91,7 @@
                 <% end %>
 
         <% end %>
-	
+        	
         <td ></td>
-
 </tr>
 
