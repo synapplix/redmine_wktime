@@ -17,7 +17,6 @@ helper :custom_fields
 
     update
     redirect_to :action => 'edit', :user_id => @user.id,         :startday => @startday-7,  :project_id => params[:project_id]
-    #redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
   end
 
   def index
@@ -86,37 +85,8 @@ helper :custom_fields
 	end
 	
 	findBySql(selectStr,sqlStr,wkSelectStr,wkSqlStr)
-	
   #forwarding to new 
   redirect_to({ action: 'new'  })
-
- #OldCode
- #redirect_to  :action => 'edit' , :project_id => 3, :user_id => 4, :startday => @from, :prev_template => 1 
- #render :action => 'new' and return 
- ##x = Project.find_by_id(3)
- 
-##render :action => 'edit', :logtime_projects => x, :user_id => ids, :startday => @from and return
- #render :action => 'edit', :project_id => '3', :user_id => ids, :startday => @from, :prev_template => 1 and return
- 
- #letzte zu new
- #redirect_to({ action: 'new'  }, :flash => { :user_id => ids }, alert: "Something serious happened")
-   #redirect  
-  #redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
-   
-  #aus new
-  #set_user_projects
-  #@selected_project = getSelectedProject(@manage_log_time_projects)
-  # get the startday for current week
-  #@startday = getStartDay(Date.today)
-     
-     #redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
-      #respond_to do |format|
-      # format.html {        
-        # render :layout => !request.xhr?
-       # }
-  	   # format.api
-     # end
-     #End OldCode 
   
   end
   
@@ -169,7 +139,6 @@ helper :custom_fields
 	cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?	
 	useApprovalSystem = (!Setting.plugin_redmine_wktime['wktime_use_approval_system'].blank? &&
 							Setting.plugin_redmine_wktime['wktime_use_approval_system'].to_i == 1)
-	##vor der Transaction
 					
 	@wktime.transaction do
 		begin				
@@ -200,18 +169,14 @@ helper :custom_fields
 						end
 					end
 
-				#Added Code 3.3. 2014 
-
 						#Find the entry with the current user_id and startday
 						#If there is no such entry create a new one 
 						StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first_or_create do |record|
 						record.user_id = params[:user_id]
 						record.startday = params[:startday]
 						end
-
 						#Select this entry                      
 						n = StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first
-
 						#Set start_1...start_7
 						n.start_1= params[:start_1]
 						n.start_2= params[:start_2]
@@ -220,7 +185,6 @@ helper :custom_fields
 						n.start_5= params[:start_5]
 						n.start_6= params[:start_6]
 						n.start_7= params[:start_7]
-
 						#analogue the values of end_1...end_7
 						n.end_1= params[:end_1]
 						n.end_2= params[:end_2]
@@ -229,8 +193,6 @@ helper :custom_fields
 						n.end_5= params[:end_5]
 						n.end_6= params[:end_6]
 						n.end_7= params[:end_7]
-
-
 						#analogue the values of pause_1...pause_7
 						n.pause_1= params[:pause_1]
 						n.pause_2= params[:pause_2]
@@ -239,13 +201,9 @@ helper :custom_fields
 						n.pause_5= params[:pause_5]
 						n.pause_6= params[:pause_6]
 						n.pause_7= params[:pause_7]
-
 						#Save the entry
 						n.save
-
 						#End added Code 3.3.2014
-			
-					
 				end
 				setTotal(@wktime,total)
 				#if (errorMsg.blank? && total > 0.0)
@@ -281,7 +239,6 @@ helper :custom_fields
 		end
 		
 		if errorMsg.nil?			
-			#when the are entries or it is not a save action
 			if !@entries.blank? || !params[:wktime_approve].blank? || 
 				(!params[:wktime_reject].blank? || !params[:hidden_wk_reject].blank?) ||
 				!params[:wktime_unsubmit].blank? || !params[:wktime_unapprove].blank? ||
@@ -299,8 +256,6 @@ helper :custom_fields
 		format.html {
 			if errorMsg.nil?
 				flash[:notice] = respMsg
-				#redirect_back_or_default :action => 'index'
-				#redirect_to :action => 'edit' , :tab => params[:tab]
 				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
 			else
 				flash[:error] = respMsg
@@ -316,7 +271,6 @@ helper :custom_fields
 			if errorMsg.blank?
 				render :text => respMsg, :layout => nil
 			else			
-   #redirect_to :ac
 				@error_messages = respMsg.split('\n')	
 				render :template => 'common/error_messages.api', :status => :unprocessable_entity, :layout => nil
 			end
@@ -463,9 +417,7 @@ helper :custom_fields
 			render :json => issStr 
 		end
 	end
-  
-  
-  
+ 
 	def getactivities
 		project = nil
 		error = nil
@@ -633,7 +585,6 @@ helper :custom_fields
 	
 private
 	
-
 	def getUsersbyGroup
 		groupusers= nil
 		scope=User.in_group(params[:group_id])  if params[:group_id].present?
@@ -1370,11 +1321,6 @@ private
 			return false
 		end
 	end
-	
-	
-
-
-	
 	
 	def formPaginationCondition
 		rangeStr = ""

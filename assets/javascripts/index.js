@@ -30,7 +30,7 @@ function updateUserDD(itemStr, dropdown, userid, needBlankOption, skipFirst)
 	var i, index, val, text, start;
 	dropdown.options.length = 0;
 	if(needBlankOption){
-		dropdown.options[0] = new Option("All Users", "0", false, false) 
+		dropdown.options[0] = new Option("All Users", "0", false, false); 
 	}
 	for(i=0; i < items.length-1; i++){
 		index = items[i].indexOf(',');
@@ -107,9 +107,9 @@ function grpChanged(grpDropdown, userid, needBlankOption){
 }
 function progrpChanged(btnoption, userid, needBlankOption){
 	if (btnoption.value==1){
-		projChanged(document.getElementById("project_id"), userid, needBlankOption)
+		projChanged(document.getElementById("project_id"), userid, needBlankOption);
 	}
 	else{
-		grpChanged(document.getElementById("group_id"), userid, needBlankOption)
+		grpChanged(document.getElementById("group_id"), userid, needBlankOption);
 	}
 }

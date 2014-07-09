@@ -13,7 +13,7 @@ $(document).ready(function(){
 	}	
 	if(txtEntryDate!=null){		
 		showEntryWarning(txtEntryDate.value);
-		txtEntryDate.onchange=function(){showEntryWarning(this.value)};	
+		txtEntryDate.onchange=function(){showEntryWarning(this.value);};	
 	}
 });
 

@@ -4,30 +4,22 @@
 	no_user = '<%=l(:label_wk_no_user_current_project) %>';
 	userUrl="<%= "#{url_for(:controller => controller_name, :action => 'getusers')}" %>";
 </script>
-
-	
-	
 <table>
 
-
-	<tr>
-			
+	<tr>		
 			<td class="project" align="left" hidden ="hidden";><%=h select_tag('project_id',
 				options_for_select(options_for_wktime_project(@manage_log_time_projects),
 				:selected => @selected_project.id), :key => "value", :onchange => "projChanged(this, #{User.current.id}, false);", :onkeypress => 13, :tabindex => 1) %></td>
 	</tr>
 
-
 <% if !@manage_log_time_projects.blank? %>
 	
-		
 	<tr>
 	<th><%=l(:label_member)%></th>
 	<td>
 		
 				<%=h User.current.login %>
 				<%=h hidden_field_tag('user_id', User.current.id) %>
-		
 	</td>
 	</tr>
 	

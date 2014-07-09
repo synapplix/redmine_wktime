@@ -92,7 +92,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			holidayDate.value = getCurrentDate();
 			holiDayAction = action;
 			selectedDate="";
-			$( "#holiday-dlg" ).dialog( "open" )	
+			$( "#holiday-dlg" ).dialog( "open" );	
 		}
 		else if('Edit' == action && listbox != null && listbox.options.selectedIndex >=0)
 		{				
@@ -102,7 +102,7 @@ function updateCustFldDD(currCFDD,anotherCFDD)
 			if(listboxArr[1] != null)
 				holiDayDesc.value = listboxArr[1].trim();
 				holiDayAction = action;
-			$( "#holiday-dlg" ).dialog( "open" )	
+			$( "#holiday-dlg" ).dialog( "open" );	
 		}
 		else if(listbox != null && listbox.options.length >0)
 		{		

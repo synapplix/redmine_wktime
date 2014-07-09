@@ -18,7 +18,6 @@ var minHourAlertMsg="";
 var decSeparator = ".";
 
 
-
 $(document).ready(function() {
 //$(function() {
 	var e_comments = $( "#_edit_comments_" );
@@ -77,11 +76,7 @@ $(document).ready(function() {
 			}
 		}
 	});	
-	
-	
 });
-//check for valid time format 
-//onchange="if (!this.value.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]/)) this.value = '';"
 
 function showComment(row, col) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
@@ -161,10 +156,13 @@ function showCustomField() {
 		}
 	}
 }
-
+//assuring right timeformat for the starting time
+//throwing error when input is not matched with the regular expression
 function validateTime(timeToCheck){	
 		var timeToValidate = timeToCheck.value;
-		if (!timeToValidate.match(/^(([01]?[0-9]|2[0-3])):[0-5][0-9]$/)) {timeToCheck.value = ''; alert("Sie haben eine feherlhafte Startzeit angegeben. ("+ timeToValidate+")");}
+		if (!timeToValidate.match(/^(([01]?[0-9]|2[0-3])):[0-5][0-9]$/)){
+			timeToCheck.value = ''; alert("Sie haben eine feherlhafte Startzeit angegeben. ("+ timeToValidate+")");
+		}
 		$( "#comment-dlg" ).dialog( "open" );
 }
 
@@ -491,8 +489,6 @@ function enterIssueIdorAssignUser(){
 		issueAssignUser = "&issue_assign_user=" + IsueassignUserChk.value;
 	}
 		location.href = editUrl +issueID + issueAssignUser;
-	
-
 }
 
 function addRow(){
@@ -827,23 +823,15 @@ function updateRemainingHr(day)
 	dayTt = Number(day_total.innerHTML);	
 	rmTimeCell = rmTimeRow.cells[hStartIndex + day-3]; // -3 because the activity box was removed
 	
-	
-	//if(totTime >  0)
 	{
 		remainingTm = totTime - dayTt;
 	}		
-	rmTimeCell.innerHTML = remainingTm.toFixed(2);
-	
+	rmTimeCell.innerHTML = remainingTm.toFixed(2);	
 }
 
 function getTotalTime(day)
 {
-	var minDiff = getMinDiff(day);
-	
-	 
-	
-				
-	//totTime = Math.round((minDiff/60)*100)/100;	
+	var minDiff = getMinDiff(day);	
 	totTime = minDiff/60;
 	return totTime;
 }
@@ -920,8 +908,8 @@ function validateHr(hrFld,day)
 	
 	if(hrVal == "")
 	{
-		hrFld.value = "0:00";
-		hrVal = "0:00";
+		hrFld.value = "00:00";
+		hrVal = "00:00";
 	}
 	
 	if(hrVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null)
@@ -987,7 +975,7 @@ function issueAssignUser()
 	{
 		issue_assign_user=1;
 	}
-	return issue_assign_user
+	return issue_assign_user;
 }
 
 

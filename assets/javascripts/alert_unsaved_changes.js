@@ -7,8 +7,9 @@ $(document).ready(function () {
 			// #comment-dlg textarea, #comment-dlg select are the spectific fields in the popup showComment
     		window.onbeforeunload = function () {
     			 if (warnMessage != null) return warnMessage;
-    		}
+    		};
 		});
+		
 		$('input:submit').click(function(e) {
 			warnMessage = null;
 		});

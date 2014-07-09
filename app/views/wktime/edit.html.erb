@@ -1,8 +1,6 @@
+
  <%= stylesheet_link_tag 'wk-time', :plugin => "redmine_wktime" %>
- 
- 
  <%= javascript_include_tag 'edit', :plugin => "redmine_wktime" %>
- 
  <%= javascript_include_tag 'alert_unsaved_changes', :plugin => "redmine_wktime" %>
  	
 	<script type="text/javascript"> 
@@ -30,10 +28,6 @@
 		
 	<div id="comment-dlg" title="<%= l(:label_attribute_plural) %>">
 		
-	<!-- modified class .ui-widget-header to change the header color -->
-		<!--<span id="_edit_comm_proj_">project</span>,
-		<span id="_edit_comm_iss_">issue</span> 
-		<!--<span id="_edit_comm_act_">activity</span<!-- edit: Deleting header of the popup, since it is not needed-->
 		<fieldset>
 		<% if Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].blank? ||
 			Setting.plugin_redmine_wktime['wktime_enter_comment_in_row'].to_i == 0 %>
@@ -138,8 +132,7 @@
             
       		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
                   :title => l(:label_wk_next_week_tip)) %>
-                  	
-                  
+                   
 	</td>
 	</tr>
 </table>
