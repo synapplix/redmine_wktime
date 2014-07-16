@@ -57,7 +57,7 @@
 		<%= l(:label_wk_filter_issue_tracker) %>
 	</th>		
 	<td rowspan="3">
-		<%=  select_tag('select_issues_tracker', options_for_select(trackers, :selected => Setting.plugin_redmine_wktime[controller.getTFSettingName()]), :multiple=> true,
+		<%=  select_tag('select_issues_tracker', options_for_select(trackers, :selected => Setting.plugin_redmine_wktime[controller.getTFSettingName()]), :multiple=> true, :size=>"4;", :style=>"width:150px",
 			:onchange => "trackerFilterChanged(this);")%>  		
 		<% end %>
 	</td>

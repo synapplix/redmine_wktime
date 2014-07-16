@@ -54,8 +54,8 @@
 	<% end %>
 	
 	<!-- Link to the /time_entries -->
-	<% extendedPath = '?utf8=✓&f[]=user_id&op[user_id]=%3D&v[user_id][]=me&f[]=spent_on&op[spent_on]=><t-&v[spent_on][]=20&f[]=project_id&op[project_id]=%3D&v[project_id][]=mine&f[]=&c[]=spent_on&c[]=user&c[]=project&c[]=issue&c[]=hours&c[]=comments&c[]=cf_19' %>
-	<%= link_to(l(:label_wk_evaluation), time_entries_path + extendedPath, {:style=>'color:#454545'})  if User.current.allowed_to?(:view_time_entries, nil, :global => true) %>
+	<% extendedPath = '?utf8=✓&f[]=user_id&op[user_id]=%3D&v[user_id][]=me&f[]=spent_on&op[spent_on]=><t-&v[spent_on][]=14&f[]=project_id&op[project_id]=%3D&v[project_id][]=mine&f[]=&c[]=spent_on&c[]=user&c[]=project&c[]=issue&c[]=hours&c[]=comments&c[]=cf_19' %>
+	<%= link_to(l(:label_wk_evaluation), time_entries_path + extendedPath, {:style=>'color:#595959'})  if User.current.allowed_to?(:view_time_entries, nil, :global => true) %>
 </h3>
 
 
