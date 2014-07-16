@@ -140,7 +140,7 @@ currencySym = ""
 </tbody>
 </table>
 
-
+<center>
 <% if @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'%>
 		<%= submit_tag l(:button_save), :id => 'wktime_save', :name => 'wktime_save', :disabled => !(@row > 0)%>
 	<% if !Setting.plugin_redmine_wktime[:wktime_use_approval_system].blank? &&
@@ -166,11 +166,5 @@ currencySym = ""
 		<% end %>
 	<% end %>
 <% end %>
-<div class="splitcontentleft">
-
-<% if @editable %>
-	<%= link_to l(:button_add_row), "javascript:addRow();projectChanged(document.getElementsByName('time_entry[][project_id]'),0);", :class => 'icon icon-time-add', :style=>'color:#454545'  %>
-<% end %>
-
-</div>
+</center>
 <%= context_menu time_entries_context_menu_path %>
