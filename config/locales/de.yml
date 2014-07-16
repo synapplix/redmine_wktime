@@ -53,7 +53,7 @@ de:
   label_workingHours: Eingetragene Arbeitszeit
   label_totalh: Gesamt
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"
-  
+  label_wk_own_issues: selbst erstellte oder zugewiesene Tickets
   label_wk_evaluation: Auswertung
 
   label_wk_first_day_of_week: Erster Tag der Woche
@@ -62,7 +62,7 @@ de:
   label_wkexpense: Expense
   label_te: Zeiterfassung
   label_wk_allow_user_filter_tracker: Allow User Filtering by Tracker
-  label_wk_filter_issue_tracker: Filter Issue by Tracker
+  label_wk_filter_issue_tracker: Tickets nach Tracker sortieren
   label_wk_currency: Currency
   label_wk_time: Weekly Time
 

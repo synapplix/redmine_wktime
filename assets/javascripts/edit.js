@@ -160,7 +160,7 @@ function showCustomField() {
 //throwing error when input is not matched with the regular expression
 function validateTime(timeToCheck){	
 		var timeToValidate = timeToCheck.value;
-		if (!timeToValidate.match(/(^$)| (^(([01]?[0-9]|2[0-3])):[0-5][0-9]$)/)){
+		if (!timeToValidate.match(/(^(((0|1)[0-9]|2[0-3])):[0-5][0-9]$)/)){
 			timeToCheck.value = ''; alert("Sie haben eine feherlhafte Startzeit angegeben. ("+ timeToValidate+")");
 		}
 		$( "#comment-dlg" ).dialog( "open" );
