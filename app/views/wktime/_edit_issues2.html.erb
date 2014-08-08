@@ -1,28 +1,29 @@
 <tr class="time-entry <%= cycle("odd", "even") %>">
 <% @trOpen = true %>
-<% @row += 1 unless isTemplate %>
+<% @row += 1 unless isTemplate%>
 
 <% 
 project_id = entry.nil? ? (@logtime_projects.blank? ? 0 : @logtime_projects[0].id) : entry.project_id	
-if params[:enter_issue_id].blank? 
-
-	projects = options_for_wktime_project(@logtime_projects)
-	project = projects.detect {|p| p[1].to_i == entry.project_id} unless entry.nil?
-	#check if the project, which was previously reported time, is still visible
-	#if it is not visible, just show the id alone
-	projects.unshift( [ entry.project_id, entry.project_id ] ) if !entry.nil? && project.blank?
+	if params[:enter_issue_id].blank? 
+		projects = User.current.memberships.collect(&:project).compact.select(&:active?).uniq
+		
+		projects = options_for_wktime_project(projects) #@currentUser_loggable_projects
+		project = projects.detect {|p| p[1].to_i == entry.project_id} unless entry.nil?
+		#check if the project, which was previously reported time, is still visible
+		#if it is not visible, just show the id alone
+		projects.unshift( [ entry.project_id, entry.project_id ] ) 	if !entry.nil? && project.blank?
 %>
 
 	<td class="project" align="left">
 		<% if @editable %>
 			<%=h select_tag(isTemplate ? '__template__time_entry[][project_id]' : 'time_entry[][project_id]', 
-			options_for_select(projects, :selected =>  project_id),
+			options_for_select(projects, :selected =>  [project_id]),
 			:onchange => "projectChanged(this,#{@row.to_s()});", :style=> "width:#{Setting.plugin_redmine_wktime['wktime_project_dd_width']}px" ) %>
 		<% else %>
 			<% if project.blank? %>
 				<%= project_id %>
 			<% else %>
-				<%= project[0] %>
+				<%=  project[0]%>
 			<% end %>
 		<% end %>
 	</td>

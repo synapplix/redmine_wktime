@@ -42,7 +42,7 @@ Redmine::Plugin.register :redmine_wktime do
   
   settings(:partial => 'settings',
            :default => {
-             'wktime_project_dd_width' => '150',
+             'wktime_project_dd_width' => '250',
              'wktime_issue_dd_width' => '250',
              'wktime_actv_dd_width' => '75',
 			 'wktime_closed_issue_ind' => '0',

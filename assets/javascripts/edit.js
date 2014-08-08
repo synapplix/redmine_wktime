@@ -517,7 +517,7 @@ function addRow(){
 		submitButton.disabled = false;
 	}
 	//refreshing colours for logged time
-	for(i=0; i < 6; i++){updateRemainingHr(i);}
+	for(i=1; i <= 7; i++){updateRemainingHr(i);}
 }
 
 function deleteRow(row, deleteMsg){
@@ -572,7 +572,7 @@ function deleteRow(row, deleteMsg){
 		postDeleteRow('OK', row, days);
 	}
 	//refreshing colours for logged time
-	for(i=0; i < 6; i++){updateRemainingHr(i);}
+	for(i=1; i <= 7 ; i++){updateRemainingHr(i);}
 }
 
 function postDeleteRow(result, row, days, deleteMsg){
@@ -875,6 +875,7 @@ function getMinDiff(day)
 			end_min += 1440;
 		}
 	}
+	//pause feature
 	minDiff = end_min - st_min - pause_min;
 	return minDiff;
 }
@@ -883,7 +884,7 @@ function getMinDiff(day)
 function getMinutes(day,str)
 {
 	var fldVal,fldVal_min;
-	fldVal = document.getElementById(String(str)+String(day)).value;
+	fldVal = document.getElementById(str+day).value;
 	fldVal = fldVal.split(":");
 	fldVal_min = (fldVal[0] * 60) + parseInt(fldVal[1]);	
 	return fldVal_min;

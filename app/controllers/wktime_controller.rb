@@ -1083,7 +1083,7 @@ private
 			:conditions => Project.allowed_to_condition(User.current, :view_time_entries))
 		@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
-
+    
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time/expense sheet link	
 		@currentUser_loggable_projects ||= Project.find(:all, :order => 'name', 
@@ -1094,6 +1094,7 @@ private
 		# @manage_log_time_projects is used to fill up the dropdown in new page for managers
 		@manage_log_time_projects = @manage_projects & @currentUser_loggable_projects
 		@manage_log_time_projects = setTEProjects(@manage_log_time_projects)
+		$user_project = @manage_log_time_projects 
 	end
 
 	def set_loggable_projects
