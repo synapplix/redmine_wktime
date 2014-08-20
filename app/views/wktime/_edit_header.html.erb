@@ -39,7 +39,8 @@
 </tr>
 <tr>
 	<th><%=l(:field_status)%></th>
-	<% # the default status on new wktime object is 'new' %>
+	<% # the default status on new wktime object is 'new' 
+	%>
 	<td>
 		<%=h statusString(@wktime.status) unless @wktime.blank? %>
 	</td>

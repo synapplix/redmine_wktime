@@ -623,30 +623,47 @@ private
 	end
 	
 	def prevTemplate(user_id)	
-		prev_entries = nil		
-		noOfWeek = Setting.plugin_redmine_wktime['wktime_previous_template_week']
-		
-		if !noOfWeek.blank?
-			entityNames = getEntityNames		
-			sDay= getDateSqlString('t.spent_on')
-			sqlStr = "select t.* from " + entityNames[1] + " t inner join ( "
-			if ActiveRecord::Base.connection.adapter_name == 'SQLServer'	
-				sqlStr += "select TOP " + noOfWeek.to_s + sDay + " as startday" +
-					" from  " + entityNames[1] + " t where user_id = " + user_id.to_s +
-					" group by " + sDay + " order by startday desc ) as v" 
-			else
-				sqlStr += "select " + sDay + " as startday" +
-						" from  " + entityNames[1] + " t where user_id = " + user_id.to_s +
-						" group by startday order by startday desc limit " + noOfWeek.to_s + ") as v" 
-			end
-					
-			sqlStr +=" on " + sDay + " = v.startday where user_id = " + user_id.to_s +
-					" order by t.project_id, t.issue_id, t.activity_id"				
-								
-			prev_entries = TimeEntry.find_by_sql(sqlStr)
-		end
-		prev_entries
-	end
+		prev_entries = nil       
+    noOfWeek = (Setting.plugin_redmine_wktime['wktime_previous_template_week'].to_i)*7
+       
+     if !noOfWeek.blank?
+       entityNames = getEntityNames       
+  
+           
+       #changed SQL Query
+      sqlStr = "select * "+
+      "from "  + entityNames[1] +
+      " where "+ entityNames[1] +"." +"user_id = "+ user_id.to_s +
+      " and  `spent_on`  >= '" + (@startday-noOfWeek).to_s + "'" +
+      " and  `spent_on`  <= '" + @startday.to_s + "'"
+           
+      #sqlStr = "select t.* from " + entityNames[1] + " t inner join ( "
+      #if ActiveRecord::Base.connection.adapter_name == 'SQLServer'   
+      #    sqlStr += "select TOP " + noOfWeek.to_s + sDay + " as startday" +
+      #        " from  " + entityNames[1] + " t where user_id = " + user_id.to_s +
+      #        " group by " + sDay + " order by startday desc ) as v"
+      #       
+           
+      #if ActiveRecord::Base.connection.adapter_name == 'SQLServer'
+      #  sqlStr += "select TOP " + noOfWeek.to_s + sDay + " as startday" +
+      #    " from  " + entityNames[1] + " t where user_id = " + user_id.to_s + "and" + @startday + "t.startday" +
+      #    " group by " + sDay + " order by startday desc ) as v"
+           
+           
+      #else
+      #    sqlStr += "select " + sDay + " as startday" +
+      #            " from  " + entityNames[1] + " t where user_id = " + user_id.to_s +
+      #            " group by startday order by startday desc limit " + noOfWeek.to_s + ") as v"
+      #end
+      #       
+      #sqlStr +=" on " + sDay + " = v.startday where user_id = " + user_id.to_s +
+      #        " order by t.project_id, t.issue_id, t.activity_id"               
+      #   
+                           
+      prev_entries = TimeEntry.find_by_sql(sqlStr)
+      end
+      prev_entries
+    end
 
 	
   def gatherEntries

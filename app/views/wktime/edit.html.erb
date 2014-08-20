@@ -137,15 +137,17 @@
              <%= link_to("\xc2\xab " + l(:label_previous ), {:controller => controller.controller_name, :action => 'edit', :startday => @startday-7, :user_id => @user.id, :project_id => params[:project_id]},
                    :title => l(:label_wk_prev_week_tip), :id => 'previous' , :style=>'color:#555555') %>    
             
-      		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7, :user_id => @user.id, :project_id => params[:project_id]},
+      		<%= link_to(l(:label_next) + " \xc2\xbb", {:controller => controller.controller_name, :action => 'edit', :startday => @startday+7,:prev_template => true, :user_id => @user.id, :project_id => params[:project_id]},
                   :title => l(:label_wk_next_week_tip), :style=>'color:#555555') %>
        </h3>            
 	</td>
 	</tr>
 </table>
 
-<%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
+<!--display, whether the template was transferred -->
+<center> <%= l(:label_wk_template_was_used) if @prev_template %> </center>
 
+<%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
 <%= render :partial => 'edit_footer' %>
 
 <% end %>

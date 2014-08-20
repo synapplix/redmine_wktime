@@ -52,6 +52,7 @@ de:
   label_remaining_hours: Anwesende Arbeitszeit
   label_workingHours: Eingetragene Arbeitszeit
   label_totalh: Gesamt
+  label_wk_template_was_used: Das Template der letzten Woche wurde übernommen
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"
   label_wk_own_issues: selbst erstellte oder zugewiesene Tickets
   label_wk_evaluation: Auswertung

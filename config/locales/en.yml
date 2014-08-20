@@ -51,6 +51,7 @@ en:
   label_remaining_hours: present hours
   label_workingHours: logged hours
   label_totalh: total
+  label_wk_template_was_used: template of last week was taken
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"  
   label_wk_own_issues: assgined or own issues
   label_wk_evaluation: Evaluation

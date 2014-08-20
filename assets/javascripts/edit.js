@@ -924,8 +924,8 @@ function validateHr(hrFld,day)
 	
 	if(hrVal == "")
 	{
-		hrFld.value = "00:00";
-		hrVal = "00:00";
+		hrFld.value = "0:00";
+		hrVal = "0:00";
 	}
 	
 	if(hrVal.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/) == null)

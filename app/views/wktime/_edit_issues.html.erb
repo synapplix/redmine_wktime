@@ -52,8 +52,8 @@ currencySym = ""
 							
 					<%= render :partial => 'edit_hours', :locals => {:entry => entry, :isTemplate => false, :padAt => 'begin', :padTill => i+2}%>	
 					
-					<% thours[i] += entry.hours unless @prev_template%>
-					<% @total_hours += entry.hours unless @prev_template%>
+					<% thours[i] += entry.hours unless @prev_template && !entries.nil?%>
+					<% @total_hours += entry.hours unless @prev_template && !entries.nil?%>
 					<% currencySym = controller.getUnit(entry) %>
 				<% end %>
 			<% end %>
@@ -109,23 +109,35 @@ currencySym = ""
 		<!-- Remaining hours entries with the values of each column-->
 		<% thours.each_with_index do |th,i| %>		
 			
-			<% entry = StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first %>    <!-- Find the right entry -->
-	 		<% if (!entry.nil?) %>  
-						
+		<% entry = StartEnd.where(user_id: params[:user_id], startday: params[:startday]).first %>    <!-- Find the right entry -->
+	 	<% if (!entry.nil?) %>  
+	 		
+	 		 <%
+ 	 		 	arrayStart = 	[entry.start_1,entry.start_2,entry.start_3,entry.start_4,entry.start_5,entry.start_6,entry.start_7] 
+ 		 		arrayEnd   = 	[entry.end_1,  entry.end_2,  entry.end_3,  entry.end_4,  entry.end_5,  entry.end_6,  entry.end_7] 
+ 		 		arrayPause = 	[entry.pause_1,  entry.pause_2,  entry.pause_3,  entry.pause_4,  entry.pause_5,  entry.pause_6,  entry.pause_7] 
+ 				
+ 				r_start = arrayStart[i]
+ 				r_end 	= arrayEnd[i]
+ 				r_pause	= arrayPause[i]
+ 			%>	
+
 				<!--Calculating the time (= end-start-pause)--> 
-				<% 	r_start = $arrayStartg[i].strftime('%s').to_f	%>
-				<% 	r_end 	= $arrayEndg[i].strftime('%s').to_f		%>
-				<% 	r_pause	= ($arrayPauseg[i].strftime('%H').to_i)*3600 + ($arrayPauseg[i].strftime('%M').to_i)*60	%>
-				<%	time  	= (r_end-r_start-r_pause).to_f	%>	
-				<%	time    = '%.2f' % (time / 3600)		%>
-	
-				<td align="center">	<span id= <%= "remaining_#{i+1}" %>> <%= time %>  </span></td>
-				
-			<% else %>		
-				<td align="center"> <span id= <%= "remaining_#{i+1}" %>> <%= '0.00'%> </span></td>
-			<% end %>
+	 			<% if (!r_start.nil? && !r_end.nil? && !r_pause.nil?)   %>
+	                <% r_start = r_start.strftime('%s').to_f    		%>
+	                <% r_end   = r_end .strftime('%s').to_f    			%>
+	                <% r_pause = (r_pause.strftime('%H').to_i)*3600 + (r_pause.strftime('%M').to_i)*60    %>
+	                <% time    = (r_end-r_start-r_pause).to_f    		%>   
+	                <% time    = '%.2f' % (time / 3600)        			%>
+                <% else time= '0.00'%>
+                <% end %>					
+                <td align="center">	<span id= <%= "remaining_#{i+1}" %>> <%= time %>  </span></td>
 			
-		<% end %>				
+		<% else %>		
+			<td align="center"> <span id= <%= "remaining_#{i+1}" %>> <%= '0.00'%> </span></td>
+		<% end %>
+			
+	<% end %>				
 	</tr>
 		
 <% end %>
@@ -167,4 +179,5 @@ currencySym = ""
 	<% end %>
 <% end %>
 </center>
+
 <%= context_menu time_entries_context_menu_path %>
