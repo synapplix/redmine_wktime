@@ -133,9 +133,20 @@ class WktimeHook < Redmine::Hook::ViewListener
 		javascript_include_tag('wkstatus', :plugin => 'redmine_wktime') + "\n" +
 		stylesheet_link_tag('lockwarning', :plugin => 'redmine_wktime')		
 	end
-	
-	def view_timelog_edit_form_bottom(context={ })		
-		showWarningMsg(context[:request])
+		
+  def view_timelog_edit_form_bottom(context={})       
+      showWarningMsg(context[:request])
+     
+      rmvLabel       = '<script type="text/javascript">  document.getElementById("time_entry_comments").previousSibling.remove(); </script>'
+      rmvText_field  = '<script type="text/javascript">  document.getElementById("time_entry_comments").remove(); </script>'
+       
+      #new Comment box
+      label = '<label for="time_entry_comments" >'+ l(:field_comments) + '</label>'
+      text_area = text_area_tag("time_entry_comments", content = context[:time_entry].comments, options = {size: "60x10" , name: "time_entry[comments]" })
+         
+   #Remove old Kommentbox from dom
+   return '<p>'+ label + text_area + '</p>' + rmvLabel + rmvText_field
+     
 	end
 	
 	def view_issues_edit_notes_bottom(context={})	
