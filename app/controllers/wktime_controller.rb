@@ -632,10 +632,12 @@ private
            
        #changed SQL Query
       sqlStr = "select * "+
-      "from "  + entityNames[1] +
+      "from "  + entityNames[1] + ', projects as p' +
       " where "+ entityNames[1] +"." +"user_id = "+ user_id.to_s +
       " and  `spent_on`  >= '" + (@startday-noOfWeek).to_s + "'" +
-      " and  `spent_on`  <= '" + @startday.to_s + "'"
+      " and  `spent_on`  <= '" + @startday.to_s + "'" +
+      " and   `project_id` = p.id" + 
+      " order by p.name asc"
            
       #sqlStr = "select t.* from " + entityNames[1] + " t inner join ( "
       #if ActiveRecord::Base.connection.adapter_name == 'SQLServer'   
