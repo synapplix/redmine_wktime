@@ -145,7 +145,7 @@
 </table>
 
 <!--display, whether the template was transferred -->
-<center> <%= l(:label_wk_template_was_used) if @prev_template %> </center>
+<center> <% flash.now[:notice] = l(:label_wk_template_was_used) if @prev_template %> </center>
 
 <%= render :partial => 'edit_issues', :locals => { :entries => @prev_template ? @prev_entries : @entries }%>
 <%= render :partial => 'edit_footer' %>
