@@ -49,8 +49,8 @@ de:
   label_start: Start
   label_end: Ende
   label_pause: Pause [hh:mm]
-  label_remaining_hours: Anwesende Arbeitszeit
-  label_workingHours: Eingetragene Arbeitszeit
+  label_remaining_hours: Anwesende Zeit
+  label_workingHours: Eingetragene Zeit
   label_totalh: Gesamt
   label_wk_template_was_used: Das Template der letzten Woche wurde übernommen
   label_warning_wktime_time_entry: "Please Note: The timesheet for this period is locked, you cannot log time. It will lead to an error"
