@@ -19,7 +19,7 @@ var decSeparator = ".";
 
 
 $(document).ready(function() {
-//$(function() {
+
 	var e_comments = $( "#_edit_comments_" );
 	var e_notes = $( "#_edit_notes_" );
 
@@ -58,7 +58,7 @@ $(document).ready(function() {
 		}
 	
 	});	
-	
+
 
 	$( "#notes-dlg" ).dialog({
 		autoOpen: false,
@@ -75,8 +75,135 @@ $(document).ready(function() {
 				$( this ).dialog( "close" );
 			}
 		}
-	});	
+	});
+
+	//mbraeu contirbution: autocomplete widget for the issue dropdown in the edit view
+	(function( $ ) {
+		$.widget( "custom.combobox", {
+			_create: function() {
+				this.wrapper = $( "<span>" )
+					.addClass( "custom-combobox" )
+					.insertAfter( this.element );
+				this.element.hide();
+				this._createAutocomplete();
+				this._createShowAllButton();
+			},
+			_createAutocomplete: function() {
+				var selected = this.element.children( ":selected" ),
+					value = selected.val() ? selected.text() : "";
+				this.input = $( "<input>" )
+					.appendTo( this.wrapper )
+					.val( value )
+					.attr( "title", "" )
+					//.addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+					.addClass( "custom-combobox-input ui-corner-left" )
+					.autocomplete({
+						delay: 0,
+						minLength: 0,
+						source: $.proxy( this, "_source" )
+					})
+					.tooltip({
+						classes: {
+							"ui-tooltip": "ui-state-highlight"
+						}
+					});
+				this._on( this.input, {
+					autocompleteselect: function( event, ui ) {
+						ui.item.option.selected = true;
+						this._trigger( "select", event, {
+							item: ui.item.option
+						});
+						selected.change() //add change event
+					},
+					autocompletechange: "_removeIfInvalid"
+				});
+			},
+			_createShowAllButton: function() {
+				var input = this.input,
+					wasOpen = false;
+				$( "<a>" )
+					.attr( "tabIndex", -1 )
+					.attr( "title", "Zeige alle Tickets" )
+					.tooltip()
+					.appendTo( this.wrapper )
+					.button({
+						icons: {
+							primary: "ui-icon-triangle-1-s"
+						},
+						text: false
+					})
+					.removeClass( "ui-corner-all" )
+					.removeClass( "ui-button ui-widget ui-state-default")
+					.addClass( "custom-combobox-toggle ui-corner-right" )
+					.on( "mousedown", function() {
+						wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+					})
+					.on( "click", function() {
+						input.trigger( "focus" );
+						// Close if already visible
+						if ( wasOpen ) {
+							return;
+						}
+						// Pass empty string as value to search for, displaying all results
+						input.autocomplete( "search", "" );
+					});
+			},
+			_source: function( request, response ) {
+				var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+				response( this.element.children( "option" ).map(function() {
+					var text = $( this ).text();
+					if ( this.value && ( !request.term || matcher.test(text) ) )
+						return {
+							label: text,
+							value: text,
+							option: this
+						};
+				}) );
+			},
+			_removeIfInvalid: function( event, ui ) {
+				// Selected an item, nothing to do
+				if ( ui.item ) {
+					return;
+				}
+				// Search for a match (case-insensitive)
+				var value = this.input.val(),
+					valueLowerCase = value.toLowerCase(),
+					valid = false;
+				this.element.children( "option" ).each(function() {
+					if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+						this.selected = valid = true;
+						return false;
+					}
+				});
+				// Found a match, nothing to do
+				if ( valid ) {
+					return;
+				}
+				// Remove invalid value
+				this.input
+					.val( "" )
+					.attr( "title", "\""+ value + "\" ist kein gültiges Ticket" )
+					.tooltip( "open" );
+				this.element.val( "" );
+				this._delay(function() {
+					this.input.tooltip( "close" ).attr( "title", "");
+				}, 2500 );
+			},
+			_destroy: function() {
+				this.wrapper.remove();
+				this.element.show();
+			}
+		});
+	})( jQuery );
+	$(function() {
+		//Set combobox method for all issues which are created when loading the site
+		$(".issue_input").combobox();
+		$( "#toggle" ).on( "click", function() {
+			$( ".combo" ).toggle();
+		});
+	});
 });
+
 
 function showComment(row, col) {
 	var images = $( 'img[name="custfield_img'+row+'[]"]' );
@@ -265,6 +392,8 @@ function projectChanged(projDropdown, row){
 			beforeSend: function(){ $this.addClass('ajax-loading'); },
 			complete: function(){ $this.removeClass('ajax-loading'); }
 		});
+		$(".custom-combobox-input").eq(row).val("");
+
 	}
 }
 
@@ -490,7 +619,10 @@ function enterIssueIdorAssignUser(){
 	if(IsueassignUserChk && IsueassignUserChk.checked){
 		issueAssignUser = "&issue_assign_user=" + IsueassignUserChk.value;
 	}
-		location.href = editUrl +issueID + issueAssignUser;
+	//mbraeu contribution: check whether a prev_temp has to be loaded (which means: no hours logged so far)
+	var prevTemplate = document.getElementById("total_hours").innerHTML == "0.00" ? "&prev_template=true" : "";
+
+	location.href = editUrl +issueID + issueAssignUser + prevTemplate;
 }
 
 function addRow(){
@@ -501,7 +633,7 @@ function addRow(){
 	var rowCount = issueTable.rows.length;	
 	//there is a header row and a total row present, so the empty count is 2
 	var row = issueTable.insertRow(rowCount - footerRows);
-	
+
 	var cellCount = issueTemplate.rows[0].cells.length;
 	var i, cell;
 	for(i=0; i < cellCount; i++){
@@ -516,6 +648,9 @@ function addRow(){
 	{
 		submitButton.disabled = false;
 	}
+	//set combobox for new row element
+	$(".issue_input").combobox();
+	$(".custom-combobox").last().remove();
 	//refreshing colours for logged time
 	for(i=1; i <= 7; i++){updateRemainingHr(i);}
 }
@@ -855,28 +990,24 @@ function getTotalTime(day)
 	return totTime;
 }
 
-//Returns the minutes difference between start and end time
+//Returns the minute-difference between start and end time inlc. the pause
 function getMinDiff(day)
 {
 	var totTime,currDayTotal;
 	var st_min,end_min,minDiff;
-	st_min = getMinutes(day,'start_');
+	start_min = getMinutes(day,'start_');
 	end_min = getMinutes(day,'end_');
 	pause_min = getMinutes(day, 'pause_');
 	
-	if(st_min > end_min)
+	//Initial state
+	if(start_min == 0 && end_min == 0 )
 	{
-		if(st_min <= 720)
-		{
-			end_min += 720;
-		}
-		else
-		{
-			end_min += 1440;
-		}
+		minDiff = 0-pause_min;
 	}
-	//pause feature
-	minDiff = end_min - st_min - pause_min;
+	else
+	{
+		minDiff = end_min - start_min - pause_min;
+	}
 	return minDiff;
 }
 
@@ -896,8 +1027,7 @@ function updateTotalHr(day)
 	var issueTable = document.getElementById("issueTable");
 	var totTimeRow = issueTable.rows[3];
 	var tot_Hr = 0,tot_min = 0,totTime="";
-	//var minDiff = getMinDiff(day);
-	
+	var minDiff = getMinDiff(day);
 	/*if(minDiff > 0)
 	{	*/	
 		tot_Hr = parseInt(minDiff/60) ;
