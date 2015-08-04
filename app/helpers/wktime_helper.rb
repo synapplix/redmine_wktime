@@ -281,14 +281,34 @@ module WktimeHelper
 	def getWeeklyView(entries, unitLabel, sumHours = false)
 		weeklyHash = Hash.new
 		prev_entry = nil
-		entries.each do |entry|			
+		#check whether the given array consists out of prev_entries (=> no custom_value: e.g BÃ¼ro)
+		unless entries[0].attributes.has_key?("value")
+			entries.each do |entry|
+				entry.attributes.store(:value, CustomField.find_by_name('Einsatzort').default_value.to_s )
+			end
+		end
+		entries.each do |entry|
 			# If a project is deleted all its associated child table entries will get deleted except wk_expense_entries
 			# So added !entry.project.blank? check to remove deleted projects
 			if !entry.project.blank?
 				key = entry.project.id.to_s + (entry.issue.blank? ? '' : entry.issue.id.to_s) + entry.activity.id.to_s + (unitLabel.blank? ? '' : entry.currency)
-			
-				hourMatrix = weeklyHash[key]
 				
+				# mbraeu contribution: modify key for the custom_value.value to distinguish between those values in the respective line:
+				# => h for Home
+				# => k for Kunde
+				# => b for Buero
+
+				case entry[:value]
+					when 'Home'
+						key+= 'h'
+					when 'Kunde'
+					  key+= 'k'
+					else
+					  key+= 'b'
+				end
+
+				hourMatrix = weeklyHash[key]
+
 				if hourMatrix.blank?
 					#create a new matrix if not found
 					hourMatrix =  []
@@ -585,7 +605,7 @@ end
 		elsif ActiveRecord::Base.connection.adapter_name == 'SQLServer'		
 			sqlStr = "DateAdd(d, (((((DATEPART(dw," + dtfield + ")-1)%7)-1)+(8-" + startOfWeek.to_s + ")) % 7)*-1," + dtfield + ")"
 		else
-			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, … 6 = Sunday)
+			# mysql - the weekday index for date (0 = Monday, 1 = Tuesday, ï¿½ 6 = Sunday)
 			sqlStr = "adddate(" + dtfield + ",mod(weekday(" + dtfield + ")+(8-" + startOfWeek.to_s + "),7)*-1)"
 		end		
 		sqlStr

@@ -99,7 +99,7 @@ helper :custom_fields
 	@editable = @wktime.nil? || @wktime.status == 'n' || @wktime.status == 'r'
 	@entries = findEntries()
 	set_project_issues(@entries)
-	if @entries.blank? && !params[:prev_template].blank?
+	if @entries.blank?
 		@prev_entries = prevTemplate(@user.id)
 		if !@prev_entries.blank?
 			set_project_issues(@prev_entries)
@@ -121,7 +121,7 @@ helper :custom_fields
 	@wktime = nil
 	errorMsg = nil
 	respMsg = nil	
-	findWkTE(@startday)	
+	findWkTE(@startday)
 	@wktime = getWkEntity if @wktime.nil?
 	allowApprove = false
 	if api_request?
@@ -256,7 +256,7 @@ helper :custom_fields
 		format.html {
 			if errorMsg.nil?
 				flash[:notice] = respMsg
-				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday
+				redirect_to :action => 'edit', :user_id => params[:user_id], :startday => @startday, :issue_assign_user => params[:issue_assign_user]  #mbraeu contribution: keep configuration of issue_assigned_user
 			else
 				flash[:error] = respMsg
 				if !params[:enter_issue_id].blank? && params[:enter_issue_id].to_i == 1					
@@ -629,14 +629,14 @@ private
      if !noOfWeek.blank?
        entityNames = getEntityNames       
   
-           
+
        #changed SQL Query
       sqlStr = "select * "+
       "from "  + entityNames[1] + ', projects as p' +
       " where "+ entityNames[1] +"." +"user_id = "+ user_id.to_s +
       " and  `spent_on`  >= '" + (@startday-noOfWeek).to_s + "'" +
       " and  `spent_on`  <= '" + @startday.to_s + "'" +
-      " and   `project_id` = p.id" + 
+      " and   `project_id` = p.id" +
       " order by p.name asc"
            
       #sqlStr = "select t.* from " + entityNames[1] + " t inner join ( "
@@ -682,7 +682,7 @@ private
 		unless entryHash.nil?
 			entryHash.each_with_index do |entry, i|
 				if !entry['project_id'].blank?
-					hours = params['hours' + (i+1).to_s()]					
+					hours = params['hours' + (i+1).to_s()]
 					ids = params['ids' + (i+1).to_s()]
 					comments = params['comments' + (i+1).to_s()]
 					disabled = params['disabled' + (i+1).to_s()]
@@ -699,7 +699,7 @@ private
 						if disabled[k] == "false"
 							if(!id.blank? || !hours[j].blank?)
 								teEntry = nil
-								teEntry = getTEEntry(id)									
+								teEntry = getTEEntry(id)
 								teEntry.attributes = entry
 								# since project_id and user_id is protected
 								teEntry.project_id = entry['project_id']
@@ -713,7 +713,7 @@ private
 								#timeEntry.hours = hours[j].blank? ? nil : hours[j].to_f
 								#to allow for internationalization on decimal separator
 								setValueForSpField(teEntry,hours[j],decimal_separator,entry)
-								
+
 								unless custom_fields.blank?
 									teEntry.custom_field_values.each do |custom_value|
 										custom_field = custom_value.custom_field
@@ -731,8 +731,8 @@ private
 										end
 									end
 								end
-								
-								@entries << teEntry	
+
+								@entries << teEntry
 							end
 							j += 1
 						else
@@ -839,7 +839,7 @@ private
 	
 	def findEntries
 		setup	
-		cond = getCondition('spent_on', @user.id, @startday, @startday+6)		
+		cond = getCondition('spent_on', @user.id, @startday, @startday+6, )		
 		findEntriesByCond(cond)
 	end
 	
@@ -1145,8 +1145,20 @@ private
 	end
 
 	def set_visible_issues(entry)
-        project = entry.nil? ? (@logtime_projects.blank? ? nil : @logtime_projects[0]) : entry.project
-        project_id = project.nil? ? 0 : project.id
+
+				if (!entry.nil?)
+					#Select project from entry
+					project = entry.project
+					project_id = entry.project_id
+				else
+					#Select default project
+					projects = User.current.memberships.collect(&:project).compact.select(&:active?).uniq if entry.nil?
+					projects = options_for_wktime_project(projects) #@currentUser_loggable_projects
+					project = projects.detect {|p| p[1].to_i == entry.project_id} unless entry.nil?
+					projects.unshift( [ entry.project_id, entry.project_id ] ) 	if !entry.nil? && project.blank?
+					project_id = projects[0][1]
+				end
+
 		issueAssignToUsrCond = getIssueAssignToUsrCond
         if @projectIssues[project_id].blank?
             allIssues = Array.new
@@ -1174,7 +1186,9 @@ private
                    
             end
             # find the issues which are visible to the user            
-            @projectIssues[project_id] = allIssues.select {|i| i.visible?(@user) }
+            @projectIssues[project_id] = allIssues.select {
+            	|i| i.visible?(@user)   
+            }
         end
         if @projActivities[project_id].blank?
             @projActivities[project_id] = project.activities unless project.nil?
@@ -1207,10 +1221,19 @@ private
 		@wktimes = Wktime.find(:all, :conditions => cond)
 	end
 	
-	#Entries are now sorted alphamerically according to their projectname (ASC) and according to their ticket id (ASC)
+	#Entries are now sorted alphanumerically according to their projectname (ASC) and according to their issue id (ASC)
+	#mbraeu contribution:
+	# Reworked SQL to modify key in "wktime_helper/getWeeklyView" for the custom_value.value
+	# in order to distinguish between those values in the respective line (and not getting merged)
+	# (1) Join of the tables time_entries with custom_values and projects + conditions
+	# (2) Entries are now also sorted by their custom_value.value with the custom_field_id = 11 : being the values of the Custom_value Einsatzort (e.g: Home etc.)
 	def findEntriesByCond(cond)
-	  TimeEntry.joins(:project).find(:all, :conditions => cond,
-      :order => 'name, issue_id, created_on')		
+		 TimeEntry.joins('INNER JOIN custom_values ON time_entries.id = custom_values.customized_id').joins(:project)
+							.where('custom_values.custom_field_id' => '11', 'custom_values.customized_type' => 'TimeEntry')
+					  	.find(:all,
+										:select => "custom_values.value, time_entries.*",
+										:conditions => cond,
+		      				  :order => 'projects.name, time_entries.issue_id, custom_values.value, created_on')
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
