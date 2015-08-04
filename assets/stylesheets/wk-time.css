@@ -1,2 +1,47 @@
-.wk-contextual {text-align: right; white-space: nowrap; line-height:1.4em;margin-top:5px; margin-bottom:10px; padding-left: 10px; font-size:0.9em;}
+.wk-contextual {
+    text-align: right;
+    white-space: nowrap;
+    line-height:1.4em;
+    margin-top:5px;
+    margin-bottom:10px;
+    padding-left: 10px;
+    font-size:0.9em;}
 
+#wktime_edit .custom-combobox {
+    position: relative;
+    display: inline-block;
+}
+.ui-menu {
+    max-height: 205px;
+    width:  500px;
+    overflow-x: auto;
+    overflow-y: auto;
+    font-size: inherit;
+    white-space: nowrap;
+ }
+.ui-menu-item a {
+    overflow: hidden;
+}
+#wktime_edit .custom-combobox-toggle {
+    bottom: 0px;
+    position: absolute;
+    top: 0px;
+ }
+#wktime_edit .custom-combobox-input {
+    background-color: #fafafa;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    color: #444;
+    font-size: inherit;
+    margin: 5px 1px 3px 0;
+    padding: 6px 0 3px 3px;
+    min-width: 240px;
+    max-width: 250px;
+}
+#wktime_edit .edit-issue .ui-button-icon-only{
+	background-color: #d2d2d2;
+    margin: 5px 2px 3px -1px;
+    width: 12px;
+    border-radius: 1px;
+}
+´
