@@ -42,6 +42,10 @@
 <th width="100px"><%= l(:chkbox_prev_tmpl) %></th> 
 <td><%= check_box_tag('prev_template', 1, true)%></td>
 </tr>
+<tr class = hidden>
+    <th width="100px"><%= l(:chkbox_issue_assign_user) %></th>
+    <td><%= check_box_tag('issue_assign_user', 1, true)%></td>
+</tr>
 </table>
 
 <%@currentUser_loggable_projects%>
