@@ -975,7 +975,7 @@ function updateRemainingHr(day)
 		}
 	//cell = totalRow.cells[hStartIndex + day];
 
-	rmTimeCell = rmTimeRow.cells[hStartIndex + day-3]; // -3 because the activity box was removed
+	rmTimeCell = rmTimeRow.cells[hStartIndex + day];
 	
 	{
 		remainingTm = totTime; //- dayTt;

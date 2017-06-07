@@ -352,49 +352,50 @@ helper :custom_fields
 	end	
 	if Setting.plugin_redmine_wktime['wktime_closed_issue_ind'].to_i == 1
 		if !params[:tracker_id].blank? && params[:tracker_id] != ["0"] && params[:term].blank?
-			issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids] , 
-			:conditions =>  ["#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}", params[:tracker_id]] , :order => 'project_id')	
+			projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : ''))}"
+			projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
+			issues = Issue.where(["(#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", params[:tracker_id]])
 		elsif !params[:term].blank? 
 			  	if subjectPart.present?
-					if subjectPart.match(/^\d+$/)						
-						cond = ["(LOWER(#{Issue.table_name}.subject) LIKE ? OR #{Issue.table_name}.id=?)#{issueAssignToUsrCond} #{trackerIDCond}", "%#{subjectPart.downcase}%","#{subjectPart.to_i}"]
+						if subjectPart.match(/^\d+$/)
+							cond = ["((LOWER(#{Issue.table_name}.subject) LIKE ? OR #{Issue.table_name}.id=?) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%","#{subjectPart.to_i}"]
 						else
-						cond = ["LOWER(#{Issue.table_name}.subject) LIKE ? #{issueAssignToUsrCond}#{trackerIDCond}", "%#{subjectPart.downcase}%"]
-					end
-					issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids] || projectids ,
-					:conditions => cond , :order => 'project_id')	
+							cond = ["(LOWER(#{Issue.table_name}.subject) LIKE ? #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%"]
+						end
+					issues = Issue.where(cond).order('project_id')
 				end  
 		else
-			if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1) 
-				issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids]|| projectids,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?)#{trackerIDCond}", params[:user_id],params[:user_id]], :order => 'project_id')
+			if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1)
+				projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
+				projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
+
+				issues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerIDCond}) #{projCond}", params[:user_id], params[:user_id]]).order('project_id')
 			else
-				issues = Issue.find_all_by_project_id(params[:project_id] || params[:project_ids], :order => 'project_id')
+				issues = Issue.where(:project_id => params[:project_id] || params[:project_ids]).order('project_id')
 			end
 		end
 	else	
-		@startday = params[:startday].to_s.to_date	
-		
-		if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]	&& params[:term].blank?	
-
-			cond = ["(#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.updated_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}", false, @startday,params[:tracker_id]]			
+		@startday = params[:startday].to_s.to_date
+		projIds = "#{(params[:project_id] || (!params[:project_ids].blank? ? params[:project_ids].join(",") : '') || projectids)}"
+		projCond = !projIds.blank? ? "AND #{Issue.table_name}.project_id in (#{projIds})" : ""
+		if !params[:tracker_id].blank? && params[:tracker_id] != ["0"]	&& params[:term].blank?
+			cond = ["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) AND  #{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond}) #{projCond}", false, @startday,params[:tracker_id]]
 		elsif !params[:term].blank? 
 			if subjectPart.present?
-				if subjectPart.match(/^\d+$/)					
-					cond = ["(LOWER(#{Issue.table_name}.subject) LIKE ? OR #{Issue.table_name}.id=?)  AND #{IssueStatus.table_name}.is_closed = ? #{issueAssignToUsrCond} #{trackerIDCond}", "%#{subjectPart.downcase}%","#{subjectPart.to_i}",false]
+				if subjectPart.match(/^\d+$/)
+					cond = ["((LOWER(#{Issue.table_name}.subject) LIKE ? OR #{Issue.table_name}.id=?)  AND (#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%","#{subjectPart.to_i}", false, @startday]
 				else
-					cond = ["(LOWER(#{Issue.table_name}.subject) LIKE ?  AND #{IssueStatus.table_name}.is_closed = ?) #{issueAssignToUsrCond} #{trackerIDCond}", "%#{subjectPart.downcase}%",false]
-				end				
-			 end  
+					cond = ["((LOWER(#{Issue.table_name}.subject) LIKE ?  AND (#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?)) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", "%#{subjectPart.downcase}%", false, @startday]
+				end
+			end
 		else
-		
-			cond =["(#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.updated_on >= ?) #{issueAssignToUsrCond}#{trackerIDCond}", false, @startday]
-		end	
-		
-		issues= Issue.find_all_by_project_id(params[:project_id] || params[:project_ids] || projectids,
-		:conditions => cond,		
-		:include => :status, :order => 'project_id')
+			cond =["((#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.closed_on >= ?) #{issueAssignToUsrCond} #{trackerIDCond}) #{projCond}", false, @startday]
+		end
+
+		issues = Issue.includes(:status).references(:status).where(cond).order('project_id')
 	end
-	 issues.compact!
+	#issues.compact!
+	issues = issues.select(&:present?)
 	user = User.find(params[:user_id])
 
 		if  !params[:format].blank?
@@ -676,7 +677,7 @@ private
 		decimal_separator = l(:general_csv_decimal_separator)
 		use_detail_popup = !Setting.plugin_redmine_wktime['wktime_use_detail_popup'].blank? &&
 			Setting.plugin_redmine_wktime['wktime_use_detail_popup'].to_i == 1
-		custom_fields = TimeEntryCustomField.find(:all)
+		custom_fields = TimeEntryCustomField.all
 		@wkvalidEntry=false
 		@teEntrydisabled=false
 		unless entryHash.nil?
@@ -756,7 +757,7 @@ private
 			cvParams = wktimeParams[:custom_field_values] unless wktimeParams.blank?
 		end		
 		#custom_values = Hash.new
-		custom_fields = WktimeCustomField.find(:all)		
+		custom_fields = WktimeCustomField.all
 		if !custom_fields.blank? && !cvParams.blank?
 			wktime.custom_field_values.each do |custom_value|
 				custom_field = custom_value.custom_field				
@@ -1092,21 +1093,18 @@ private
 	end
 	
 	def set_managed_projects
-		@manage_projects ||= Project.find(:all, :order => 'name', 
-			:conditions => Project.allowed_to_condition(User.current, :manage_members))		
-		@manage_projects =	setTEProjects(@manage_projects)	
+		@manage_projects ||= Project.where(Project.allowed_to_condition(User.current, :edit_time_entries)).order('name')
+		@manage_projects =	setTEProjects(@manage_projects)
 		
 		# @manage_view_spenttime_projects contains project list of current user with manage_member and view_time_entries permission
 		# @manage_view_spenttime_projects is used to fill up the dropdown in list page for managers		
-		view_spenttime_projects ||= Project.find(:all, :order => 'name', 
-			:conditions => Project.allowed_to_condition(User.current, :view_time_entries))
-		@manage_view_spenttime_projects = @manage_projects & view_spenttime_projects
+		@view_spenttime_projects ||= Project.where(Project.allowed_to_condition(User.current, :view_time_entries)).order('name')
+		@manage_view_spenttime_projects = @manage_projects & @view_spenttime_projects
 		@manage_view_spenttime_projects = setTEProjects(@manage_view_spenttime_projects)
     
 		# @currentUser_loggable_projects contains project list of current user with log_time permission
 		# @currentUser_loggable_projects is used to show/hide new time/expense sheet link	
-		@currentUser_loggable_projects ||= Project.find(:all, :order => 'name', 
-			:conditions => Project.allowed_to_condition(User.current, :log_time))
+		@currentUser_loggable_projects ||= Project.where(Project.allowed_to_condition(User.current, :log_time)).order('name')
 		@currentUser_loggable_projects = setTEProjects(@currentUser_loggable_projects)
 		
 		# @manage_log_time_projects contains project list of current user with manage_member and log_time permission
@@ -1124,10 +1122,9 @@ private
 			u_id = params[:user_id]
 		end
 		if !u_id.blank?	&& u_id.to_i != 0
-			@user ||= User.find(u_id)	
-			@logtime_projects ||= Project.find(:all, :order => 'name', 
-				:conditions => Project.allowed_to_condition(@user, :log_time))
-			@logtime_projects = setTEProjects(@logtime_projects)			
+			@user ||= User.find(u_id)
+			@logtime_projects = Project.where(Project.allowed_to_condition(@user, :log_time)).order('name')
+			@logtime_projects = setTEProjects(@logtime_projects)
 		end
 	end
 	
@@ -1166,12 +1163,12 @@ private
                 if !Setting.plugin_redmine_wktime[getTFSettingName()].blank? &&  Setting.plugin_redmine_wktime[getTFSettingName()] != ["0"]
 					cond=["#{Issue.table_name}.tracker_id in ( ?) #{issueAssignToUsrCond} ",Setting.plugin_redmine_wktime[getTFSettingName()]]
                     #allIssues = Issue.find_all_by_project_id(project_id , :conditions =>  ["#{Issue.table_name}.tracker_id in ( ?) ",Setting.plugin_redmine_wktime[getTFSettingName()]])    
-					allIssues = Issue.find_all_by_project_id(project_id,:conditions =>cond) 
+					allIssues = Issue.where(cond)
                 else
 					if (!params[:issue_assign_user].blank? && params[:issue_assign_user].to_i == 1) 
-						allIssues = Issue.find_all_by_project_id(project_id,:conditions =>["(#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?)", params[:user_id],params[:user_id]]) 
+						allIssues = Issue.where(["((#{Issue.table_name}.assigned_to_id= ? OR #{Issue.table_name}.author_id= ?) #{trackerids}) and #{Issue.table_name}.project_id in ( #{project_id})", params[:user_id],params[:user_id]])
 					else
-						allIssues = Issue.find_all_by_project_id(project_id) 
+						allIssues = Issue.where(:project_id => project_id)
 					end
                 end
           	else
@@ -1180,11 +1177,8 @@ private
                 else
                     cond =["(#{IssueStatus.table_name}.is_closed = ? OR #{Issue.table_name}.updated_on >= ?) #{issueAssignToUsrCond}",false, @startday]
                 end
-                allIssues = Issue.find_all_by_project_id(project_id,
-                :conditions => cond,
-                :include => :status)
-                   
-            end
+								allIssues = Issue.includes(:status).references(:status).where(cond)
+						end
             # find the issues which are visible to the user            
             @projectIssues[project_id] = allIssues.select {
             	|i| i.visible?(@user)   
@@ -1218,7 +1212,7 @@ private
 	end
 	
 	def findWkTEByCond(cond)
-		@wktimes = Wktime.find(:all, :conditions => cond)
+		@wktimes = Wktime.where(cond)
 	end
 	
 	#Entries are now sorted alphanumerically according to their projectname (ASC) and according to their issue id (ASC)
@@ -1228,12 +1222,7 @@ private
 	# (1) Join of the tables time_entries with custom_values and projects + conditions
 	# (2) Entries are now also sorted by their custom_value.value with the custom_field_id = 11 : being the values of the Custom_value Einsatzort (e.g: Home etc.)
 	def findEntriesByCond(cond)
-		 TimeEntry.joins('INNER JOIN custom_values ON time_entries.id = custom_values.customized_id').joins(:project)
-							.where('custom_values.custom_field_id' => '11', 'custom_values.customized_type' => 'TimeEntry')
-					  	.find(:all,
-										:select => "custom_values.value, time_entries.*",
-										:conditions => cond,
-		      				  :order => 'projects.name, time_entries.issue_id, custom_values.value, created_on')
+		TimeEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = time_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, time_entries.spent_on')
 	end
 	
 	def setValueForSpField(teEntry,spValue,decimal_separator,entry)
@@ -1330,8 +1319,7 @@ private
 	end 
 	
 	def set_approvable_projects
-		@approvable_projects ||= Project.find(:all, :order => 'name', 
-			:conditions => Project.allowed_to_condition(User.current, :approve_time_entries))
+		@approvable_projects ||= Project.where(Project.allowed_to_condition(User.current, :approve_time_entries)).order('name')
 	end
 	
 	def getTEName

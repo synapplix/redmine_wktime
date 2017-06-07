@@ -6,7 +6,12 @@ module WktimeHelperPatch
 		base.send(:include, InstanceMethods)
 
 		base.class_eval do
-		  alias_method_chain :custom_fields_tabs, :wktime_tab
+			unloadable
+			if Redmine::VERSION::MAJOR * 10 + Redmine::VERSION::MINOR >= 25
+				# todo upgrade
+			else
+				alias_method_chain :custom_fields_tabs, :custom_tab
+			end
 		end
 	end
 
@@ -82,8 +87,8 @@ Redmine::Plugin.register :redmine_wktime do
 			 'wktime_allow_filter_issue' => '1'
   })  
  
-  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission } 	
-  project_module :time_tracking do
+  menu :top_menu, :wkTime, { :controller => 'wktime', :action => 'index' }, :caption => :label_te, :if => Proc.new { Object.new.extend(WktimeHelper).checkViewPermission }
+	project_module :time_tracking do
 	permission :approve_time_entries,  {:wktime => [:update]}, :require => :member	
   end
 

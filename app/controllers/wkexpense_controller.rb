@@ -4,7 +4,7 @@ class WkexpenseController < WktimeController
   menu_item :issues
   before_filter :find_optional_project, :only => [:reportdetail, :report]
   
-  accept_api_auth :reportdetail, :index, :edit, :update, :destroy
+  accept_api_auth :reportdetail, :index, :edit, :update, :destroy , :deleteEntries
   
   include WkexpenseHelper
   include SortHelper  
@@ -31,7 +31,7 @@ class WkexpenseController < WktimeController
   end
   
   def getUnit(entry)
-	entry.nil? ? l('number.currency.format.unit') : entry[:currency]
+	entry.nil? ? number_currency_format_unit : entry[:currency]
   end
   
   def getUnitDDHTML
@@ -46,6 +46,10 @@ class WkexpenseController < WktimeController
 	false
   end 
   
+  def enterCustomFieldInRow(row)
+	false
+  end
+
   def maxHour
 	0
   end
@@ -168,23 +172,18 @@ private
   end
   
   def findWkTEByCond(cond)
-	@wktimes = Wkexpense.find(:all, :conditions => cond)
+	@wktimes = Wkexpense.where(cond)
   end
   
   def findEntriesByCond(cond)
-	WkExpenseEntry.find(:all, :conditions => cond,
-		:order => 'project_id, issue_id, activity_id, spent_on')
+	WkExpenseEntry.joins(:project).joins(:activity).joins("LEFT OUTER JOIN issues ON issues.id = wk_expense_entries.issue_id").where(cond).order('projects.name, issues.subject, enumerations.name, wk_expense_entries.spent_on')
   end
   
   def setValueForSpField(teEntry,spValue,decimal_separator,entry)
 	teEntry.amount = spValue.blank? ? nil : spValue.gsub(decimal_separator, '.').to_f
 	teEntry.currency = getUnit(entry)
   end
-  
-  def getNewCustomField
-	nil
-  end
-  
+
   def getWkEntity
 	Wkexpense.new 
   end
